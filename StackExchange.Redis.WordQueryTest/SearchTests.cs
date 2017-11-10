@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using StackExchange.Redis.WordQuery;
+using StackExchange.Redis.WordQuery.Model;
 using System;
 using System.Collections.Generic;
 using System.Text;

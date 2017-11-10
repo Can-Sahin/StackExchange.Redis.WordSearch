@@ -4,102 +4,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
+using StackExchange.Redis.WordQuery.Model;
 
 namespace StackExchange.Redis.WordQuery
 {
     public enum WordIndexing { SequentialOnly, SequentialCombination }
 
-    public interface IRedisWordQueryExceptionHandler
-    {
+   
 
-    }
-    public interface IRedisPK
-    {
-        RedisKey RedisPK { get; set; }
-    }
-    public interface ISerializer
-    {
-        byte[] Serialize<T>(T value);
-        T Deserialize<T>(byte[] value);
 
-    }
-    public class SerializerNotFoundException : Exception
-    {
-        public SerializerNotFoundException() : base("There is no serializer found for search query") { }
-    }
-    public class TransactionExecuteFailedException : Exception
-    {
-        public TransactionExecuteFailedException(string message) : base("Cannot execute transaction: "+ message) { }
-    }
-
-    public struct RedisWordQueryConfiguration{
-
-        public int MinPrefixLength { get; set; }
-        public int MaxPrefixLength { get; set; }
-        public bool IsCaseSensitive { get; set; }
-        public WordIndexing WordIndexingMethod { get; set; }
-
-        public string ParameterSeperator { get; set; }
-        public string ContainerPrefix { get; set; }
-
-        public ISerializer Serializer { get; set; }
-
-        public static RedisWordQueryConfiguration defaultConfig = new RedisWordQueryConfiguration
-        {
-            MinPrefixLength = 1,
-            MaxPrefixLength = -1,
-            IsCaseSensitive = false,
-            WordIndexingMethod = WordIndexing.SequentialOnly,
-            ParameterSeperator = RedisKeyAccessManager.DefaultSeperator,
-            ContainerPrefix = RedisKeyAccessManager.DefaultContainerPrefix
-        };
-    }
-
-    internal class RedisKeyAccessManager
-    {
-        internal const string DefaultSeperator = ":::";
-        internal const string DefaultContainerPrefix = "WQ";
-        internal const String QueryableItemsSuffix = "Queryable";
-        internal const String QueryableItemsDataSuffix = "QueryableData";
-        internal const String QuerySuffix = "Query";
-
-        private string Seperator { get; }
-        private string ContainerPrefix { get; }
-        public RedisKeyAccessManager(string containerPrefix, string parameterSeperator)
-        {
-            Seperator = string.IsNullOrEmpty(parameterSeperator) ? DefaultSeperator : parameterSeperator;
-            ContainerPrefix = string.IsNullOrEmpty(containerPrefix) ? DefaultContainerPrefix : containerPrefix;
-        }
-        internal string CompactRedisKey(RedisKey pk, params string[] param)
-        {
-            string parametersSuffix = "";
-            if(param.Length > 0)
-            {
-                parametersSuffix = Seperator + string.Join(Seperator, param);
-            }
-            return ContainerPrefix + Seperator + pk.ToString() + parametersSuffix;
-        }
-        internal string QueryKey(string subString){
-
-            return CompactRedisKey(QuerySuffix, subString);
-        }
-        internal string QueryableItemsKey { get { return CompactRedisKey(QueryableItemsSuffix); } }
-        internal string QueryableItemsDataKey { get { return CompactRedisKey(QueryableItemsDataSuffix); } }
-
-    }
     public class RedisWordQuery
     {
         public RedisWordQueryConfiguration configuration {get;}
 
-        private RedisKeyAccessManager keyManager { get; }
-        private IRedisWordQueryExceptionHandler ExceptionHandler { get;}
+        private RedisKeyManager keyManager { get; }
+        private IRedisExceptionHandler ExceptionHandler { get;}
         private IDatabase RedisDatabase { get; }
-        public RedisWordQuery(IDatabase database,RedisWordQueryConfiguration? configuration = null, IRedisWordQueryExceptionHandler handler = null)
+        public RedisWordQuery(IDatabase database,RedisWordQueryConfiguration? configuration = null, IRedisExceptionHandler handler = null)
         {
             this.configuration = configuration ?? RedisWordQueryConfiguration.defaultConfig;
             this.ExceptionHandler = handler;
             this.RedisDatabase = database;
-            this.keyManager = new RedisKeyAccessManager(this.configuration.ContainerPrefix, this.configuration.ParameterSeperator);
+            this.keyManager = new RedisKeyManager(this.configuration.ContainerPrefix, this.configuration.ParameterSeperator);
         }
 
         public void Add(RedisKey redisPK, string searchableValue = null, string embedData = null, bool updateOnExist = true, CommandFlags commandFlag = CommandFlags.None)

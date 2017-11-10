@@ -1,3 +1,3 @@
 # StackExchange.Redis.WordQuery
 
-AutoCompletion/WordQuery extension of StackExchange.Redis
+AutoComplete, Word Search extension for StackExchange.Redis
