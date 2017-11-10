@@ -1,0 +1,5 @@
+StackExchange.Redis.WordQuery/obj/
+StackExchange.Redis.WordQueryTest/obj/
+StackExchange.Redis.WordQueryTest/AppSettings.cs
+StackExchange.Redis.WordQueryTest/bin/
+StackExchange.Redis.WordQuery/bin/
