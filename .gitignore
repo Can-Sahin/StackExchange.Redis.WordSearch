@@ -3,3 +3,4 @@ StackExchange.Redis.WordQueryTest/obj/
 StackExchange.Redis.WordQueryTest/AppSettings.cs
 StackExchange.Redis.WordQueryTest/bin/
 StackExchange.Redis.WordQuery/bin/
+.vs/RedisWordQuery/v15/sqlite3/storage.ide
