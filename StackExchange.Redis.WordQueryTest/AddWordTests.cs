@@ -1,13 +1,14 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 using StackExchange.Redis.WordQuery;
+using StackExchange.Redis.WordQuery.Model;
+using System.Text;
 
 namespace StackExchange.Redis.WordQueryTest
 {
     [TestClass]
     public class AddWordTests:BaseTest
     {
-
-
         [TestMethod]
         public void Add_QueryableWord()
         {
@@ -16,7 +17,7 @@ namespace StackExchange.Redis.WordQueryTest
 
             RedisWordQuery wordQuery = new RedisWordQuery(Database);
             wordQuery.Add(queryWordId, queryWord);
-
+            
             string value = Database.HashGet(QueryableHashKey, queryWordId);
             Assert.AreEqual(queryWord, value);
         }
@@ -48,28 +49,42 @@ namespace StackExchange.Redis.WordQueryTest
 
             wordQuery.Add(queryWordId, queryWord, dataSecond);
 
-
             string value = Database.HashGet(QueryableDataHashKey, queryWordId);
             Assert.AreEqual(dataSecond, value);
         }
         [TestMethod]
-        public void Add_QueryableWord_Dont_Update_Data()
+        public void Add_QueryableWord_Object()
         {
             string queryWord = "testValue";
             string queryWordId = "testId";
-            string dataFirst = "testData";
-            string dataSecond = "testData2";
+            TestObject dataObject = new TestObject("someData") ;
 
-            FlushDB();
+            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            config.Serializer = new TestJsonSerializer();
+
+            RedisWordQuery wordQuery = new RedisWordQuery(Database,config);
+            wordQuery.AddObject(queryWordId, queryWord, dataObject);
+
+            byte[] value = Database.HashGet(QueryableDataHashKey, queryWordId);
+            Assert.AreEqual(dataObject.aProperty, (new TestJsonSerializer().Deserialize<TestObject>(value)).aProperty);
+
+        }
+        [TestMethod]
+        public void Add_QueryableWord_RemoveAfter()
+        {
+            string queryWord = "testValue";
+            string queryWordId = "testId";
 
             RedisWordQuery wordQuery = new RedisWordQuery(Database);
-            wordQuery.Add(queryWordId, queryWord, dataFirst, false);
+            wordQuery.Add(queryWordId, queryWord);
 
-            wordQuery.Add(queryWordId, queryWord, dataSecond);
+            string value = Database.HashGet(QueryableHashKey, queryWordId);
+            Assert.AreEqual(queryWord, value);
 
+            wordQuery.Remove(queryWordId);
+            Assert.AreEqual(true, Database.HashGet(QueryableHashKey, queryWordId).IsNull);
 
-            string value = Database.HashGet(QueryableDataHashKey, queryWordId);
-            Assert.AreEqual(dataSecond, value);
         }
+     
     }
 }

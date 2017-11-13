@@ -7,7 +7,7 @@ namespace StackExchange.Redis.WordQuery.Model
 
     public interface IRedisExceptionHandler
     {
-
+        void HandleException(Exception ex);
     }
 
 }

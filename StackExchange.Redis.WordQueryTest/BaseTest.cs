@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using StackExchange.Redis.WordQuery.Model;
+using Newtonsoft.Json;
 
 namespace StackExchange.Redis.WordQueryTest
 {
@@ -63,6 +65,27 @@ namespace StackExchange.Redis.WordQueryTest
         public static void FlushDB()
         {
             Connection.GetServer(HOST, 6379).FlushDatabase(DATABASENUMBER);
+        }
+        protected class TestObject
+        {
+            public string aProperty { get; set; }
+            public TestObject() { }
+            public TestObject(string propertyValue)
+            {
+                aProperty = propertyValue;
+            }
+        }
+        protected class TestJsonSerializer : ISerializer
+        {
+            public T Deserialize<T>(byte[] value)
+            {
+                return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(value));
+            }
+
+            public byte[] Serialize<T>(T value)
+            {
+                return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(value));
+            }
         }
     }
 }

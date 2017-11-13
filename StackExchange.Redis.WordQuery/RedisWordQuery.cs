@@ -10,9 +10,6 @@ namespace StackExchange.Redis.WordQuery
 {
     public enum WordIndexing { SequentialOnly, SequentialCombination }
 
-   
-
-
     public class RedisWordQuery
     {
         public RedisWordQueryConfiguration configuration {get;}
@@ -25,26 +22,35 @@ namespace StackExchange.Redis.WordQuery
             this.configuration = configuration ?? RedisWordQueryConfiguration.defaultConfig;
             this.ExceptionHandler = handler;
             this.RedisDatabase = database;
-            this.keyManager = new RedisKeyManager(this.configuration.ContainerPrefix, this.configuration.ParameterSeperator);
+            this.keyManager = new RedisKeyManager(this.configuration);
         }
-
-        public void Add(RedisKey redisPK, string searchableValue = null, string embedData = null, bool updateOnExist = true, CommandFlags commandFlag = CommandFlags.None)
+        public bool Add(RedisKey redisPK, string searchableValue, string embedData, Encoding encoding = null, bool updateOnExist = true)
         {
-            string redisPKString = redisPK.ToString();
+            Encoding selectedEncoding = encoding ?? Encoding.UTF8;
+            return Add(redisPK, searchableValue, selectedEncoding.GetBytes(embedData), updateOnExist);
+        }
+        public bool AddObject<T>(RedisKey redisPK, string searchableValue, T embedData, bool updateOnExist = true)
+        {
+            var serialized = configuration.Serializer.Serialize(embedData);
+            bool add = Add(redisPK, searchableValue, serialized, updateOnExist);
+            return add;
+        }
+        public bool Add(RedisKey redisPK, string searchableValue = null, byte[] embedData = null, bool updateOnExist = true)
+        {
+            string redisPKString = keyManager.AdjustedValue(redisPK);
             string queryableValue = searchableValue ?? redisPK;
-            string data = embedData ?? queryableValue;
+            byte[] data = embedData ?? Encoding.UTF8.GetBytes(queryableValue);
 
             if(updateOnExist && isQueryableExists(redisPK))
             {
                 string currentQueryableValue = RedisDatabase.HashGet(keyManager.QueryableItemsKey, redisPKString);
                 if (currentQueryableValue.Equals(queryableValue))
                 {
-                    RedisDatabase.HashSet(keyManager.QueryableItemsDataKey, redisPKString, data);
-                    return;
+                    return RedisDatabase.HashSet(keyManager.QueryableItemsDataKey, redisPKString, data);
                 }
                 else
                 {
-                    Remove();
+                    Remove(redisPK);
                 }
             }
             var tran = RedisDatabase.CreateTransaction();
@@ -63,36 +69,40 @@ namespace StackExchange.Redis.WordQuery
                 }
             }
             bool execute = tran.Execute();
-
+            return execute;
         }
         private bool isQueryableExists(RedisKey redisPK)
         {
-            return RedisDatabase.HashExists(keyManager.QueryableItemsKey, redisPK.ToString());
+            string redisPKString = keyManager.AdjustedValue(redisPK);
+            return RedisDatabase.HashExists(keyManager.QueryableItemsKey, redisPKString);
         }
 
-        public void AddObject()
+        public bool Remove(RedisKey redisPK)
         {
+            string redisPKString = keyManager.AdjustedValue(redisPK);
 
-        }
-        public void Remove()
-        {
+            string queryableValue = RedisDatabase.HashGet(keyManager.QueryableItemsKey, redisPKString);
 
-        }
-        public void Update()
-        {
+            var tran = RedisDatabase.CreateTransaction();
 
-        }
-        public void DeleteAll()
-        {
-            
-        }
+            List<string> words = WordsFromString(queryableValue);
+            foreach (var word in words)
+            {
+                List<string> prefixes = CreateAllPrefixesForString(word, configuration.WordIndexingMethod);
+                foreach (var subString in prefixes)
+                {
+                    string sortedSetKey = keyManager.QueryKey(subString);
+                    tran.SortedSetRemoveAsync(sortedSetKey, redisPKString);
+                }
+            }
+            tran.HashDeleteAsync(keyManager.QueryableItemsKey, redisPKString);
+            tran.HashDeleteAsync(keyManager.QueryableItemsDataKey, redisPKString);
 
+            bool execute = tran.Execute();
+            return execute;
+        }
         public List<T> Search<T>(string queryString, int limit = 0, Func<T,bool> filterFunc = null)
         {
-            if (configuration.Serializer == null)
-            {
-                throw new SerializerNotFoundException();
-            }
             var searchResults = Search(queryString, limit);
             var results = searchResults.Select(d => configuration.Serializer.Deserialize<T>(d));
             if (filterFunc != null)
@@ -146,23 +156,23 @@ namespace StackExchange.Redis.WordQuery
             if (string.IsNullOrEmpty(str)) return new List<string>();
             return new List<string>(str.RemoveSpecialCharacters().Split(' '));
         }
-        public List<string> CreateAllPrefixesForString(string str, WordIndexing method)
+        private List<string> CreateAllPrefixesForString(string str, WordIndexing method)
         {
             List<string> prefixes = new List<string>();
 
-            if (str.Length < configuration.MinPrefixLength) { return prefixes; }
+            if (str.Length < configuration.MinQueryLength) { return prefixes; }
 
             int startingIndex = 0;
             do
             {
-                int endingIndex = startingIndex + configuration.MinPrefixLength;
-                while ((endingIndex <= str.Length) && ((configuration.MaxPrefixLength == -1) || (endingIndex <= (startingIndex + configuration.MaxPrefixLength))))
+                int endingIndex = startingIndex + configuration.MinQueryLength;
+                while ((endingIndex <= str.Length) && ((configuration.MaxQueryLength == -1) || (endingIndex <= (startingIndex + configuration.MaxQueryLength))))
                 {
                     prefixes.Add(str.Substring(startingIndex, endingIndex - startingIndex));
                     endingIndex++;
                 }
                 startingIndex++;
-            } while (startingIndex <= str.Length - configuration.MinPrefixLength && method == WordIndexing.SequentialCombination);
+            } while (startingIndex <= str.Length - configuration.MinQueryLength && method == WordIndexing.SequentialCombination);
        
             return prefixes;
         }

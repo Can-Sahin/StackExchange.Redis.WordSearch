@@ -21,7 +21,7 @@ namespace StackExchange.Redis.WordQueryTest
         [DataRow("testValue", "testVal")]
         [DataRow("testValue", "testValu")]
         [DataRow("testValue", "testValue")]
-        public void QueryWord_Sequential(string originalWord, string queryWord)
+        public void Search_Sequential(string originalWord, string queryWord)
         {
 
             string originalId = "testId";
@@ -57,7 +57,7 @@ namespace StackExchange.Redis.WordQueryTest
         [DataRow("testValue", "stValue")]
         [DataRow("testValue", "tValue")]
         [DataRow("testValue", "Value")]
-        public void QueryWord_SequentialCombination(string originalWord, string queryWord)
+        public void Search_SequentialCombination(string originalWord, string queryWord)
         {
             string originalId = "testId";
 
@@ -76,7 +76,26 @@ namespace StackExchange.Redis.WordQueryTest
         }
 
         [TestMethod]
-        public void MinPrefixLimit_EmptyResults()
+        [DataRow("testValue", "testV")]
+        public void SearchResult_Object(string originalWord, string queryWord)
+        {
+            string originalId = "testId";
+
+            TestObject dataObject = new TestObject("someData");
+
+            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            config.Serializer = new TestJsonSerializer();
+
+            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
+            wordQuery.AddObject(originalId, originalWord, dataObject);
+
+            var results = wordQuery.Search<TestObject>(queryWord);
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual(dataObject.aProperty, results[0].aProperty);
+
+        }
+        [TestMethod]
+        public void MinQueryLengthLimit_EmptyResults()
         {
             FlushDB();
             string originalWord = "testValue";
@@ -85,7 +104,7 @@ namespace StackExchange.Redis.WordQueryTest
             string originalId = "testId";
 
             RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
-            config.MinPrefixLength = 3;
+            config.MinQueryLength = 3;
 
             RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
             wordQuery.Add(originalId, originalWord);
@@ -98,7 +117,7 @@ namespace StackExchange.Redis.WordQueryTest
         }
 
         [TestMethod]
-        public void MaxPrefixLimit_EmptyResults()
+        public void MaxQueryLengthLimit_EmptyResults()
         {
             FlushDB();
             string originalWord = "testValue";
@@ -107,7 +126,7 @@ namespace StackExchange.Redis.WordQueryTest
             string originalId = "testId";
 
             RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
-            config.MaxPrefixLength = 5;
+            config.MaxQueryLength = 5;
 
 
             RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
@@ -120,7 +139,7 @@ namespace StackExchange.Redis.WordQueryTest
             Assert.AreEqual(0, results.Count);
         }
         [TestMethod]
-        public void Min_MaxPrefixLimit_Sequential()
+        public void Min_MaxQueryLengthLimit_Sequential()
         {
             FlushDB();
             string originalWord = "testValue";
@@ -131,8 +150,8 @@ namespace StackExchange.Redis.WordQueryTest
             string originalId = "testId";
 
             RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
-            config.MaxPrefixLength = 5;
-            config.MinPrefixLength = 3;
+            config.MaxQueryLength = 5;
+            config.MinQueryLength = 3;
 
             RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
             wordQuery.Add(originalId, originalWord);
@@ -150,7 +169,7 @@ namespace StackExchange.Redis.WordQueryTest
             Assert.AreEqual(0, results3.Count);
         }
         [TestMethod]
-        public void Min_MaxPrefixLimit_SequentialCombination()
+        public void Min_MaxQueryLengthLimit_SequentialCombination()
         {
             FlushDB();
             string originalWord = "testValue";
@@ -166,8 +185,8 @@ namespace StackExchange.Redis.WordQueryTest
             string originalId = "testId";
 
             RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
-            config.MaxPrefixLength = 5;
-            config.MinPrefixLength = 3;
+            config.MaxQueryLength = 5;
+            config.MinQueryLength = 3;
             config.WordIndexingMethod = WordIndexing.SequentialCombination;
 
             RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
@@ -195,7 +214,7 @@ namespace StackExchange.Redis.WordQueryTest
             Assert.AreEqual(0, results6.Count);
         }
         [TestMethod]
-        public void QueryResultLimit()
+        public void SearchResultLimit()
         {
             FlushDB();
             string originalWord = "testValue";
@@ -223,7 +242,7 @@ namespace StackExchange.Redis.WordQueryTest
         }
 
         [TestMethod]
-        public void QueryResultFilter()
+        public void SearchResultFilter()
         {
             FlushDB();
             string originalWord = "testValue";
@@ -260,5 +279,6 @@ namespace StackExchange.Redis.WordQueryTest
             Assert.AreEqual(originalWord, results[0].ToString());
 
         }
+
     }
 }
