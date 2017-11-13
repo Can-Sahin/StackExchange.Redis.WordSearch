@@ -43,10 +43,10 @@ Serialized Data:
     List<GiftForEmma> results = wordQuery.Search<GiftForEmma>("Emma");
 ```
 Use `RedisWordQueryConfiguration` to :
-	- Limit min/max search length
-	- Put Redis Prefix
-	- Case Insensivity
-	- Specify search method (autocomplete sequentially or search mixed ("mma" for searching "EmmaWatson")
+- Limit min/max search length
+- Put Redis Prefix
+- Case Insensivity
+- Specify search method (autocomplete sequentially or search mixed ("mma" for searching "EmmaWatson")
 	
 # ToDo
 - Hot/Trending Search Ranking
