@@ -2,10 +2,11 @@
 
 AutoComplete, Word Search extension for [StackExchange.Redis] implemented with internal Redis Data Structures. Supports raw/serialized data attachment to a queryable word.
 Currently this project provides very basic features and implementation. I will try to improve in time.
-#Installation
+# Installation
 `PM> Install-Package StackExchange.Redis.WordQuery`
 
-#Usage
+# Usage
+
 For AutoCompletion:
 ```csharp
 	// IDatabase database = ConnectionMultiplexer.GetDatabase();
@@ -47,7 +48,7 @@ Use `RedisWordQueryConfiguration` to :
 	- Case Insensivity
 	- Specify search method (autocomplete sequentially or search mixed ("mma" for searching "EmmaWatson")
 	
-#ToDo
+# ToDo
 - Hot/Trending Search Ranking
 
 Currently this project provides very basic features and implementation. I will try to improve in time.
