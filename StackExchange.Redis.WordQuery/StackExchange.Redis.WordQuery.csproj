@@ -1,7 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.6</TargetFramework>
+    <TargetFramework>netstandard1.5</TargetFramework>
+    <PackageId>StackExchange.Redis.WordQuery</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>Can Sahin</Authors>
+    <Description>AutoCompletion/WordQuery extension for StackExchange.Redis</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes>First release</PackageReleaseNotes>
+    <PackageProjectUrl>https://github.com/Can-Sahin/StackExchange.Redis.WordQuery</PackageProjectUrl>
+    <Copyright></Copyright>
+    <PackageTags>Redis StackExchange.Redis Autocomplete</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
