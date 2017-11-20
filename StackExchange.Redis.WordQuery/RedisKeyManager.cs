@@ -5,7 +5,13 @@ using System.Text;
 
 namespace StackExchange.Redis.WordQuery
 {
-    internal class RedisKeyManager
+    public interface IRedisKeyComposer
+    {
+        bool IsCaseSensitive { get; }
+        string Seperator { get; }
+        string ContainerPrefix { get; }
+    }
+    internal class RedisKeyComposer : IRedisKeyComposer
     {
         internal const string DefaultSeperator = ":::";
         internal const string DefaultContainerPrefix = "WQ";
@@ -13,16 +19,16 @@ namespace StackExchange.Redis.WordQuery
         internal const String QueryableItemsDataSuffix = "QueryableData";
         internal const String QuerySuffix = "Query";
 
-        private bool IsCaseSensitive { get; }
-        private string Seperator { get; }
-        private string ContainerPrefix { get; }
-        public RedisKeyManager(string containerPrefix, string parameterSeperator, bool isCaseSensitive)
+        public bool IsCaseSensitive { get; }
+        public string Seperator { get; }
+        public string ContainerPrefix { get; }
+        public RedisKeyComposer(string containerPrefix, string parameterSeperator, bool isCaseSensitive)
         {
             Seperator = string.IsNullOrEmpty(parameterSeperator) ? DefaultSeperator : parameterSeperator;
             ContainerPrefix = string.IsNullOrEmpty(containerPrefix) ? DefaultContainerPrefix : containerPrefix;
             IsCaseSensitive = isCaseSensitive;
         }
-        public RedisKeyManager(RedisWordQueryConfiguration configuration)
+        public RedisKeyComposer(RedisWordQueryConfiguration configuration)
         {
             Seperator = string.IsNullOrEmpty(configuration.ParameterSeperator) ? DefaultSeperator : configuration.ParameterSeperator;
             ContainerPrefix = string.IsNullOrEmpty(configuration.ContainerPrefix) ? DefaultContainerPrefix : configuration.ContainerPrefix;

@@ -36,7 +36,7 @@ Serialized Data:
     RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
     config.Serializer = new MyJsonSerializer();
 
-    RedisWordQuery wordQuery = new RedisWordQuery(database);
+    RedisWordQuery wordQuery = new RedisWordQuery(database,config);
     wordQuery.Add("UserID", "EmmaWatson", new GiftForEmma());
     wordQuery.Add("UserID2", "EmmaStone", new GiftForEmma());
 

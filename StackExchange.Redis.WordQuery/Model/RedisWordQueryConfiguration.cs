@@ -34,8 +34,8 @@ namespace StackExchange.Redis.WordQuery.Model
             MaxQueryLength = -1,
             IsCaseSensitive = true,
             WordIndexingMethod = WordIndexing.SequentialOnly,
-            ParameterSeperator = RedisKeyManager.DefaultSeperator,
-            ContainerPrefix = RedisKeyManager.DefaultContainerPrefix
+            ParameterSeperator = RedisKeyComposer.DefaultSeperator,
+            ContainerPrefix = RedisKeyComposer.DefaultContainerPrefix
         };
     }
 }
