@@ -1,4 +1,3 @@
-using StackExchange.Redis.WordQuery.Model;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,6 +18,7 @@ namespace StackExchange.Redis.WordQuery
             this.RedisDatabase = database;
             this.keyManager = keyManager;
         }
+ 
         internal bool AddQueryableWord(RedisKey redisPK, string word, byte[] data, List<string> partials){
             string redisPKString = keyManager.AdjustedValue(redisPK);
 
@@ -33,6 +33,7 @@ namespace StackExchange.Redis.WordQuery
                 tran.SortedSetAddAsync(sortedSetKey, redisPKString,0);
             }
             return tran.Execute();
+
         }
         internal bool RemoveQueryableWord(RedisKey redisPK, List<string> partials){
             string redisPKString = keyManager.AdjustedValue(redisPK);
@@ -70,7 +71,7 @@ namespace StackExchange.Redis.WordQuery
             var entries = RedisDatabase.SortedSetRangeByRankWithScores(sortedSetKey, 0, limit-1);
             return entries.Select(e => new Tuple<RedisValue, double>(e.Element, e.Score)).ToList();;
         }
-        internal List<RedisValue> GetDataOfQueryablePKs(List<RedisValue> pkList){
+        internal IEnumerable<RedisValue> GetDataOfQueryablePKs(List<RedisValue> pkList){
 
             List<Task<RedisValue>> dataList = new List<Task<RedisValue>>();
             var tran = RedisDatabase.CreateTransaction();
@@ -81,10 +82,11 @@ namespace StackExchange.Redis.WordQuery
             bool execute = tran.Execute();
             if (!execute)
             {
-                throw new TransactionExecuteFailedException("Search");
+                //throw new TransactionExecuteFailedException("Search");
+                return null;
             }
             Task.WaitAll(dataList.ToArray());
-            var results = dataList.Select(d => (d.Result)).ToList();
+            var results = dataList.Select(d => (d.Result));
             return results;
         }
     }

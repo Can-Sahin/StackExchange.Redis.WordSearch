@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace StackExchange.Redis.WordQuery.Model
+namespace StackExchange.Redis.WordQuery
 {
     public interface ISerializer
     {
@@ -11,7 +11,7 @@ namespace StackExchange.Redis.WordQuery.Model
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="value">The value.</param>
-        /// <returns>System.String.</returns>
+        /// <returns>System.Byte</returns>
         byte[] Serialize<T>(T value);
         /// <summary>
         /// Deserializes the specified value.

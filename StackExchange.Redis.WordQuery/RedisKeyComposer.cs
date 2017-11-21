@@ -1,17 +1,10 @@
-﻿using StackExchange.Redis.WordQuery.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace StackExchange.Redis.WordQuery
 {
-    public interface IRedisKeyComposer
-    {
-        bool IsCaseSensitive { get; }
-        string Seperator { get; }
-        string ContainerPrefix { get; }
-    }
-    internal class RedisKeyComposer : IRedisKeyComposer
+    internal class RedisKeyComposer
     {
         internal const string DefaultSeperator = ":::";
         internal const string DefaultContainerPrefix = "WQ";
@@ -19,9 +12,9 @@ namespace StackExchange.Redis.WordQuery
         internal const String QueryableItemsDataSuffix = "QueryableData";
         internal const String QuerySuffix = "Query";
 
-        public bool IsCaseSensitive { get; }
-        public string Seperator { get; }
-        public string ContainerPrefix { get; }
+        internal bool IsCaseSensitive { get; }
+        internal string Seperator { get; }
+        internal string ContainerPrefix { get; }
         public RedisKeyComposer(string containerPrefix, string parameterSeperator, bool isCaseSensitive)
         {
             Seperator = string.IsNullOrEmpty(parameterSeperator) ? DefaultSeperator : parameterSeperator;

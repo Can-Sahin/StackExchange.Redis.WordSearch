@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using StackExchange.Redis.WordQuery.Model;
 using Newtonsoft.Json;
+using StackExchange.Redis.WordQuery;
 
 namespace StackExchange.Redis.WordQueryTest
 {

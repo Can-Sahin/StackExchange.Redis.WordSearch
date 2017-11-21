@@ -8,9 +8,4 @@ namespace StackExchange.Redis.WordQuery
     {
         public SerializerNotFoundException() : base("There is no serializer found for search query") { }
     }
-    public class TransactionExecuteFailedException : Exception
-    {
-        public TransactionExecuteFailedException(string message) : base("Cannot execute transaction: " + message) { }
-    }
-
 }

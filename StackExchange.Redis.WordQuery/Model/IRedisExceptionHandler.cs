@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace StackExchange.Redis.WordQuery.Model
+namespace StackExchange.Redis.WordQuery
 {
 
     public interface IRedisExceptionHandler
