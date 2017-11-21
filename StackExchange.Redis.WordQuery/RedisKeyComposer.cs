@@ -11,6 +11,8 @@ namespace StackExchange.Redis.WordQuery
         internal const String QueryableItemsSuffix = "Queryable";
         internal const String QueryableItemsDataSuffix = "QueryableData";
         internal const String QuerySuffix = "Query";
+        internal const String QueryableItemsRankingSuffix = "QueryableRanking";
+
 
         internal bool IsCaseSensitive { get; }
         internal string Seperator { get; }
@@ -47,6 +49,7 @@ namespace StackExchange.Redis.WordQuery
         }
         internal string QueryableItemsKey { get { return CompactRedisKey(QueryableItemsSuffix); } }
         internal string QueryableItemsDataKey { get { return CompactRedisKey(QueryableItemsDataSuffix); } }
+        internal string QueryableItemsRankingKey { get { return CompactRedisKey(QueryableItemsRankingSuffix); } }
 
         internal string AdjustedValue(RedisKey redisPK)
         {

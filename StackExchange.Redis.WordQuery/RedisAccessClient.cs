@@ -7,19 +7,21 @@ using System.Threading.Tasks;
 
 namespace StackExchange.Redis.WordQuery
 {
-    internal class RedisAccessClient 
+    internal class RedisAccessClient
     {
         private RedisKeyComposer keyManager { get; }
         private IDatabase RedisDatabase { get; }
-        private IRedisExceptionHandler ExceptionHandler { get;}
+        private IRedisExceptionHandler ExceptionHandler { get; }
 
-        public RedisAccessClient(IDatabase database, RedisKeyComposer keyManager, IRedisExceptionHandler handler = null){
+        public RedisAccessClient(IDatabase database, RedisKeyComposer keyManager, IRedisExceptionHandler handler = null)
+        {
             this.ExceptionHandler = handler;
             this.RedisDatabase = database;
             this.keyManager = keyManager;
         }
- 
-        internal bool AddQueryableWord(RedisKey redisPK, string word, byte[] data, List<string> partials){
+
+        internal bool AddQueryableWord(RedisKey redisPK, string word, byte[] data, List<string> partials)
+        {
             string redisPKString = keyManager.AdjustedValue(redisPK);
 
             var tran = RedisDatabase.CreateTransaction();
@@ -30,12 +32,13 @@ namespace StackExchange.Redis.WordQuery
             foreach (var subString in partials)
             {
                 string sortedSetKey = keyManager.QueryKey(subString);
-                tran.SortedSetAddAsync(sortedSetKey, redisPKString,0);
+                tran.SortedSetAddAsync(sortedSetKey, redisPKString, 0);
             }
             return tran.Execute();
 
         }
-        internal bool RemoveQueryableWord(RedisKey redisPK, List<string> partials){
+        internal bool RemoveQueryableWord(RedisKey redisPK, List<string> partials)
+        {
             string redisPKString = keyManager.AdjustedValue(redisPK);
 
             var tran = RedisDatabase.CreateTransaction();
@@ -50,12 +53,14 @@ namespace StackExchange.Redis.WordQuery
 
             return tran.Execute();
         }
-        internal string GetQueryableWord(RedisKey redisPK){
+        internal string GetQueryableWord(RedisKey redisPK)
+        {
             string redisPKString = keyManager.AdjustedValue(redisPK);
             string currentQueryableValue = RedisDatabase.HashGet(keyManager.QueryableItemsKey, redisPKString);
             return currentQueryableValue;
         }
-        public bool SetQueryableWordsData(RedisKey redisPK, byte[] data){
+        public bool SetQueryableWordsData(RedisKey redisPK, byte[] data)
+        {
             string redisPKString = keyManager.AdjustedValue(redisPK);
             return RedisDatabase.HashSet(keyManager.QueryableItemsDataKey, redisPKString, data);
         }
@@ -68,10 +73,11 @@ namespace StackExchange.Redis.WordQuery
         internal List<Tuple<RedisValue, double>> GetSearchEntries(string queryString, int limit)
         {
             string sortedSetKey = keyManager.QueryKey(queryString);
-            var entries = RedisDatabase.SortedSetRangeByRankWithScores(sortedSetKey, 0, limit-1);
-            return entries.Select(e => new Tuple<RedisValue, double>(e.Element, e.Score)).ToList();;
+            var entries = RedisDatabase.SortedSetRangeByRankWithScores(sortedSetKey, 0, limit - 1, Order.Descending);
+            return entries.Select(e => new Tuple<RedisValue, double>(e.Element, e.Score)).ToList(); ;
         }
-        internal IEnumerable<RedisValue> GetDataOfQueryablePKs(List<RedisValue> pkList){
+        internal IEnumerable<RedisValue> GetDataOfQueryablePKs(List<RedisValue> pkList)
+        {
 
             List<Task<RedisValue>> dataList = new List<Task<RedisValue>>();
             var tran = RedisDatabase.CreateTransaction();
@@ -88,6 +94,27 @@ namespace StackExchange.Redis.WordQuery
             Task.WaitAll(dataList.ToArray());
             var results = dataList.Select(d => (d.Result));
             return results;
+        }
+
+        internal bool IncrementScore(RedisKey redisPK, List<string> partials, double increment)
+        {
+            string redisPKString = keyManager.AdjustedValue(redisPK);
+
+            var tran = RedisDatabase.CreateTransaction();
+
+            tran.HashIncrementAsync(keyManager.QueryableItemsRankingKey, redisPKString, increment);
+            foreach (var subString in partials)
+            {
+                string sortedSetKey = keyManager.QueryKey(subString);
+                tran.SortedSetIncrementAsync(sortedSetKey, redisPKString, increment);
+            }
+
+            return tran.Execute();
+        }
+        internal double CurrentScore(RedisKey redisPK)
+        {
+            string redisPKString = keyManager.AdjustedValue(redisPK);
+            return (double)RedisDatabase.HashGet(keyManager.QueryableItemsRankingKey, redisPKString);
         }
     }
 }

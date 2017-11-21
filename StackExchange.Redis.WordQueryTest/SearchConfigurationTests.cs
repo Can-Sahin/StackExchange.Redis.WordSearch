@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Threading;
 
 namespace StackExchange.Redis.WordQueryTest
 {
@@ -240,6 +241,51 @@ namespace StackExchange.Redis.WordQueryTest
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(queryWord, results[0]);
 
+        }
+        [TestMethod]
+        public void IncrementRanking()
+        {
+            string queryWordId = "testId";
+            string queryWord = "testValue";
+            string searchWord = "testV";
+
+            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            config.RankingProvider = new PopularStreamRanking(AppSettings.RANKING_EPOCH, 1);
+
+            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
+            wordQuery.Add(queryWordId, queryWord);
+
+            wordQuery.IncrementRanking(queryWordId);
+            Assert.AreNotEqual(0, wordQuery.CurrentScore(queryWordId));
+        }
+
+        [TestMethod]
+        public void IncrementRanking_TestHalfLife()
+        {
+            string queryWordId = "testId";
+            string queryWordId2 = "testId2";
+
+            string queryWord = "testValue";
+            string searchWord = "testV";
+
+            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            double halfLife = (double)5 / 3600 ; // 3 seconds
+            config.RankingProvider = new PopularStreamRanking(AppSettings.RANKING_EPOCH, halfLife);
+
+            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
+            wordQuery.Add(queryWordId, queryWord);
+            wordQuery.Add(queryWordId2, queryWord);
+
+            wordQuery.IncrementRanking(queryWordId);
+            wordQuery.IncrementRanking(queryWordId);
+
+            Thread.Sleep(3000);
+            wordQuery.IncrementRanking(queryWordId2);
+
+            double score1 = wordQuery.CurrentScore(queryWordId);
+            double score2 = wordQuery.CurrentScore(queryWordId2);
+
+            Assert.IsTrue(score2 > score1);
         }
 
     }

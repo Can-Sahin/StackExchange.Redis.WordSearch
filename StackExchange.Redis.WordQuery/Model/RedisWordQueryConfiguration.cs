@@ -4,6 +4,9 @@ using System.Text;
 
 namespace StackExchange.Redis.WordQuery
 {
+
+    public enum WordIndexing { SequentialOnly, SequentialCombination }
+
     public struct RedisWordQueryConfiguration
     {
         public int MinQueryLength { get; set; }
@@ -13,7 +16,7 @@ namespace StackExchange.Redis.WordQuery
 
         public string ParameterSeperator { get; set; }
         public string ContainerPrefix { get; set; }
-
+        public IRankingProvider RankingProvider {get; set;}
         private ISerializer _Serializer;
         public ISerializer Serializer {
             get {

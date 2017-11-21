@@ -7,8 +7,6 @@ using System.Text;
 
 namespace StackExchange.Redis.WordQuery
 {
-    public enum WordIndexing { SequentialOnly, SequentialCombination }
-
     public class RedisWordQuery : IRedisWordQuery
     {
         public RedisWordQueryConfiguration configuration {get;}
@@ -110,7 +108,9 @@ namespace StackExchange.Redis.WordQuery
         public IEnumerable<RedisValue> Search(string queryString, int limit = 0, Func<RedisValue, bool> filterFunc = null)
         {
             List<Tuple<RedisValue, double>> searchResults = redis.GetSearchEntries(queryString,limit);
-            var results = redis.GetDataOfQueryablePKs(searchResults.Select(r =>r.Item1).ToList());
+            List<RedisValue> pkList = searchResults.Select(r =>r.Item1).ToList();
+ 
+            var results = redis.GetDataOfQueryablePKs(pkList);
 
             if(filterFunc != null)
             {
@@ -123,6 +123,24 @@ namespace StackExchange.Redis.WordQuery
             }
         }
 
+        public bool IncrementRanking(RedisKey redisPK, double multiplierCoefficient = 1)
+        {
+            if(configuration.RankingProvider == null || !redis.isQueryableExists(redisPK)){
+                return false;
+            }
+            string queryableWord = redis.GetQueryableWord(redisPK);
+            if(string.IsNullOrEmpty(queryableWord)){
+                return false;
+            }
+
+            List<string> partials = CreateAllPartialsForWord(queryableWord,configuration.WordIndexingMethod).ToList();
+            double scoreToIncrement = configuration.RankingProvider.ScoreToIncrementNow(multiplierCoefficient);
+            return redis.IncrementScore(redisPK,partials,scoreToIncrement);
+        }
+        public double CurrentScore(RedisKey redisPK)
+        {
+            return redis.CurrentScore(redisPK);
+        }
         private List<string> CreateAllPartialsForWord(string word, WordIndexing method)
         {
             if (string.IsNullOrEmpty(word)) return new List<string>();
