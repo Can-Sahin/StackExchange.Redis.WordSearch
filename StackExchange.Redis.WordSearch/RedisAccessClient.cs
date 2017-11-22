@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 
 
-namespace StackExchange.Redis.WordQuery
+namespace StackExchange.Redis.WordSearch
 {
     internal class RedisAccessClient
     {

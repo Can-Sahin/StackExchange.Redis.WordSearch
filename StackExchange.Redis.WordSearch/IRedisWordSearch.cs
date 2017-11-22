@@ -2,14 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace StackExchange.Redis.WordQuery
+namespace StackExchange.Redis.WordSearch
 {
-    public interface IRedisWordQuery
+    public interface IRedisWordSearch
     {
         /// <summary>
         /// Read-only configuration settings
         /// </summary>
-        RedisWordQueryConfiguration configuration { get; }
+        RedisWordSearchConfiguration configuration { get; }
 
         /// <summary>
         /// Adds search item with string data

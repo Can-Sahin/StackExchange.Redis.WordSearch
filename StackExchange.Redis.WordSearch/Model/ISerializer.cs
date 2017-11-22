@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace StackExchange.Redis.WordQuery
+namespace StackExchange.Redis.WordSearch
 {
     public interface ISerializer
     {

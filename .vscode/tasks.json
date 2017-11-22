@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/StackExchange.Redis.WordQueryTest/StackExchange.Redis.WordQueryTest.csproj"
+                "${workspaceFolder}/StackExchange.Redis.WordSearchTest/StackExchange.Redis.WordSearchTest.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

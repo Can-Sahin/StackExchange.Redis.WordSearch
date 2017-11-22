@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.5</TargetFramework>
+    <PackageId>StackExchange.Redis.WordSearch</PackageId>
+    <PackageVersion>1.0.0</PackageVersion>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Authors>Can Sahin</Authors>
+    <Description>AutoCompletion and WordSearch extension for StackExchange.Redis</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageProjectUrl>https://github.com/Can-Sahin/StackExchange.Redis.WordSearch</PackageProjectUrl>
+    <Copyright></Copyright>
+    <PackageTags>Redis StackExchange.Redis Autocomplete Search</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" Version="1.2.6" />
+  </ItemGroup>
+
+</Project>

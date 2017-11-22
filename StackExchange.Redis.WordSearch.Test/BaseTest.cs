@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using StackExchange.Redis.WordQuery;
+using StackExchange.Redis.WordSearch;
 
-namespace StackExchange.Redis.WordQueryTest
+namespace StackExchange.Redis.WordSearch.Test
 {
     [TestClass]
     public abstract class BaseTest
     {
-        protected string QueryableHashKey = "WQ:::Queryable";
-        protected string QueryableDataHashKey = "WQ:::QueryableData";
-        protected string QueryHashKey = "WQ:::Query";
-
         private const int DATABASENUMBER = AppSettings.REDISDBNUMBER;
         private const string HOST = AppSettings.REDISHOST;
         private const string PASSWORD = AppSettings.REDISPASSWORD;

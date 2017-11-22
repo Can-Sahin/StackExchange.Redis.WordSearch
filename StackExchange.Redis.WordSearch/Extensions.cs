@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 
-namespace StackExchange.Redis.WordQuery
+namespace StackExchange.Redis.WordSearch
 {
     public static class Extensions
     {

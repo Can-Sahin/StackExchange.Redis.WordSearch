@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\StackExchange.Redis.WordQuery\StackExchange.Redis.WordQuery.csproj" />
+    <ProjectReference Include="..\StackExchange.Redis.WordSearch\StackExchange.Redis.WordSearch.csproj" />
   </ItemGroup>
 
 </Project>

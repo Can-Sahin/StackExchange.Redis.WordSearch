@@ -1,16 +1,16 @@
-# StackExchange.Redis.WordQuery
+# StackExchange.Redis.WordSearch
 
 AutoComplete, Word Search extension for [StackExchange.Redis] implemented with internal Redis Data Structures. Supports raw/serialized data attachment to a queryable word.
 Currently this project provides very basic features and implementation. I will try to improve in time.
 # Installation
-`PM> Install-Package StackExchange.Redis.WordQuery`
+`PM> Install-Package StackExchange.Redis.WordSearch`
 
 # Usage
 
 For AutoCompletion:
 ```csharp
 	// IDatabase database = ConnectionMultiplexer.GetDatabase();
-    RedisWordQuery wordQuery = new RedisWordQuery(database);
+    RedisWordSearch wordQuery = new RedisWordSearch(database);
     wordQuery.Add("UserID", "EmmaWatson");
     wordQuery.Add("UserID2", "EmmaStone");
 
@@ -23,7 +23,7 @@ For searching rich data:
 
 ```csharp
 	// IDatabase database = ConnectionMultiplexer.GetDatabase();
-    RedisWordQuery wordQuery = new RedisWordQuery(database);
+    RedisWordSearch wordQuery = new RedisWordSearch(database);
     wordQuery.Add("UserID", "EmmaWatson", "PhoneNumberOfEmmaWatson");
     wordQuery.Add("UserID2", "EmmaStone", "PhoneNumberOfEmmaStone");
 
@@ -33,16 +33,16 @@ For searching rich data:
 Serialized Data:
 ```csharp
 	// IDatabase database = ConnectionMultiplexer.GetDatabase();
-    RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+    RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
     config.Serializer = new MyJsonSerializer();
 
-    RedisWordQuery wordQuery = new RedisWordQuery(database,config);
+    RedisWordSearch wordQuery = new RedisWordSearch(database,config);
     wordQuery.Add("UserID", "EmmaWatson", new GiftForEmma());
     wordQuery.Add("UserID2", "EmmaStone", new GiftForEmma());
 
     List<GiftForEmma> results = wordQuery.Search<GiftForEmma>("Emma");
 ```
-Use `RedisWordQueryConfiguration` to :
+Use `RedisWordSearchConfiguration` to :
 - Limit min/max search length
 - Put Redis Prefix
 - Case Insensivity

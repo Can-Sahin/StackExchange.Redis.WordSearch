@@ -1,6 +1,6 @@
-StackExchange.Redis.WordQuery/obj/
-StackExchange.Redis.WordQueryTest/obj/
-StackExchange.Redis.WordQueryTest/AppSettings.cs
-StackExchange.Redis.WordQueryTest/bin/
-StackExchange.Redis.WordQuery/bin/
-.vs/RedisWordQuery/v15/sqlite3/storage.ide
+StackExchange.Redis.WordSearch/obj/
+StackExchange.Redis.WordSearch.Test/obj/
+StackExchange.Redis.WordSearch.Test/AppSettings.cs
+StackExchange.Redis.WordSearch.Test/bin/
+StackExchange.Redis.WordSearch/bin/
+.vs/RedisWordSearch/v15/sqlite3/storage.ide

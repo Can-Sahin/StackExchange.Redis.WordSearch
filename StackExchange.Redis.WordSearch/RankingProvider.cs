@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace StackExchange.Redis.WordQuery
+namespace StackExchange.Redis.WordSearch
 {
     public interface IRankingProvider
     {

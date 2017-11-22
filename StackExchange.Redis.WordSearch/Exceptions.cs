@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace StackExchange.Redis.WordQuery
+namespace StackExchange.Redis.WordSearch
 {
     public class SerializerNotFoundException : Exception
     {
-        public SerializerNotFoundException() : base("There is no Serializer found in the RedisWordQueryConfiguration") { }
+        public SerializerNotFoundException() : base("There is no Serializer found in the RedisWordSearchConfiguration") { }
     }
     public class KeyNameConfigurationNotFoundException : Exception
     {
-        public KeyNameConfigurationNotFoundException() : base("There is no KeyNameConfiguration found in the RedisWordQueryConfiguration") { }
+        public KeyNameConfigurationNotFoundException() : base("There is no KeyNameConfiguration found in the RedisWordSearchConfiguration") { }
     }
 
     public class CurrentlyPopularityRankingAlgorithmOutOfLimit : Exception

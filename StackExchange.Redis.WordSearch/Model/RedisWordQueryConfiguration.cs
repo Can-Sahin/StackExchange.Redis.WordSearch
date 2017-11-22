@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace StackExchange.Redis.WordQuery
+namespace StackExchange.Redis.WordSearch
 {
 
     public enum WordIndexing { SequentialOnly, SequentialCombination }
 
-    public struct RedisWordQueryConfiguration
+    public struct RedisWordSearchConfiguration
     {
         public int MinQueryLength { get; set; }
         public int MaxQueryLength { get; set; }
@@ -51,7 +51,7 @@ namespace StackExchange.Redis.WordQuery
             }
         }
 
-        public static RedisWordQueryConfiguration defaultConfig = new RedisWordQueryConfiguration
+        public static RedisWordSearchConfiguration defaultConfig = new RedisWordSearchConfiguration
         {
             MinQueryLength = 1,
             MaxQueryLength = -1,

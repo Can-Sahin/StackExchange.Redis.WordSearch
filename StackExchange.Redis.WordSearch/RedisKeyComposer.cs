@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace StackExchange.Redis.WordQuery
+namespace StackExchange.Redis.WordSearch
 {
     public interface IRedisKeyNameConfiguration
     {
@@ -64,7 +64,7 @@ namespace StackExchange.Redis.WordQuery
             ContainerPrefix = string.IsNullOrEmpty(containerPrefix) ? DefaultContainerPrefix : containerPrefix;
             IsCaseSensitive = isCaseSensitive;
         }
-        public RedisKeyComposer(RedisWordQueryConfiguration configuration)
+        public RedisKeyComposer(RedisWordSearchConfiguration configuration)
         {
             Seperator = string.IsNullOrEmpty(configuration.ParameterSeperator) ? DefaultSeperator : configuration.ParameterSeperator;
             ContainerPrefix = string.IsNullOrEmpty(configuration.ContainerPrefix) ? DefaultContainerPrefix : configuration.ContainerPrefix;

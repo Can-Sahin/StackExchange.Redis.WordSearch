@@ -5,23 +5,24 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Text;
 
-namespace StackExchange.Redis.WordQuery
+namespace StackExchange.Redis.WordSearch
 {
-    public class RedisWordQuery : IRedisWordQuery
+    public class RedisWordSearch : IRedisWordSearch
     {
 
-        public RedisWordQueryConfiguration configuration { get; }
+        public RedisWordSearchConfiguration configuration { get; }
         private CumulativeDecayRateRankingHandler rankingHandler {get;}
 
         private RedisAccessClient redis { get; }
 
-        public RedisWordQuery(IDatabase database, RedisWordQueryConfiguration? configuration = null)
+        public RedisWordSearch(IDatabase database, RedisWordSearchConfiguration? configuration = null)
         {
-            this.configuration = configuration ?? RedisWordQueryConfiguration.defaultConfig;
+            this.configuration = configuration ?? RedisWordSearchConfiguration.defaultConfig;
             this.redis = new RedisAccessClient(database, new RedisKeyComposer(this.configuration));
             this.rankingHandler = new CumulativeDecayRateRankingHandler(this.redis,this.configuration.RankingProvider);
         }
         #region CRUD
+        
         public bool Add(RedisKey redisPK, string searchableValue, string embedData, Encoding encoding = null, bool updateOnExist = true)
         {
             Encoding selectedEncoding = encoding ?? Encoding.UTF8;

@@ -1,12 +1,12 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using StackExchange.Redis.WordQuery;
+using StackExchange.Redis.WordSearch;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.Threading;
 
-namespace StackExchange.Redis.WordQueryTest
+namespace StackExchange.Redis.WordSearch.Test
 {
     [TestClass]
     public class SearchTests : BaseTest
@@ -26,10 +26,10 @@ namespace StackExchange.Redis.WordQueryTest
         {
             string queryWordId = "testId";
 
-            RedisWordQuery wordQuery = new RedisWordQuery(Database);
-            wordQuery.Add(queryWordId, queryWord);
+            RedisWordSearch wordSearch = new RedisWordSearch(Database);
+            wordSearch.Add(queryWordId, queryWord);
 
-            var results = wordQuery.Search(queryWord).AsStringList();
+            var results = wordSearch.Search(queryWord).AsStringList();
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(queryWord, results[0]);
 
@@ -57,13 +57,13 @@ namespace StackExchange.Redis.WordQueryTest
         {
             string queryWordId = "testId";
 
-            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
             config.WordIndexingMethod = WordIndexing.SequentialCombination;
 
-            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
-            wordQuery.Add(queryWordId, queryWord);
+            RedisWordSearch wordSearch = new RedisWordSearch(Database, config);
+            wordSearch.Add(queryWordId, queryWord);
 
-            var results = wordQuery.Search(searchWord).AsStringList();
+            var results = wordSearch.Search(searchWord).AsStringList();
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(queryWord, results[0]);
         }
@@ -74,17 +74,17 @@ namespace StackExchange.Redis.WordQueryTest
         {
             string queryWordId = "testId";
 
-            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
             config.IsCaseSensitive = true;
 
-            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
-            wordQuery.Add(queryWordId, queryWord);
+            RedisWordSearch wordSearch = new RedisWordSearch(Database, config);
+            wordSearch.Add(queryWordId, queryWord);
 
-            Assert.AreEqual(queryWord, wordQuery.SearchSingle(searchWord).ToString());
-            Assert.AreEqual("default", wordQuery.SearchSingleOrDefault(searchWord.ToLower(), "default").ToString());
+            Assert.AreEqual(queryWord, wordSearch.SearchSingle(searchWord).ToString());
+            Assert.AreEqual("default", wordSearch.SearchSingleOrDefault(searchWord.ToLower(), "default").ToString());
 
-            wordQuery.Add(queryWordId.ToLower(), queryWord.ToLower());
-            Assert.AreEqual(queryWord.ToLower(), wordQuery.SearchSingle(searchWord.ToLower()).ToString());
+            wordSearch.Add(queryWordId.ToLower(), queryWord.ToLower());
+            Assert.AreEqual(queryWord.ToLower(), wordSearch.SearchSingle(searchWord.ToLower()).ToString());
 
         }
         [TestMethod]
@@ -93,17 +93,17 @@ namespace StackExchange.Redis.WordQueryTest
         {
             string queryWordId = "testId";
 
-            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
             config.IsCaseSensitive = false;
 
-            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
-            wordQuery.Add(queryWordId, queryWord);
+            RedisWordSearch wordSearch = new RedisWordSearch(Database, config);
+            wordSearch.Add(queryWordId, queryWord);
 
-            Assert.AreEqual(queryWord, wordQuery.SearchSingle(searchWord).ToString());
-            Assert.AreEqual(queryWord, wordQuery.SearchSingleOrDefault(searchWord.ToLower(), "default").ToString());
+            Assert.AreEqual(queryWord, wordSearch.SearchSingle(searchWord).ToString());
+            Assert.AreEqual(queryWord, wordSearch.SearchSingleOrDefault(searchWord.ToLower(), "default").ToString());
 
-            wordQuery.Add(queryWordId.ToLower(), queryWord.ToLower(), "someData");
-            Assert.AreEqual("someData", wordQuery.SearchSingle(searchWord).ToString());
+            wordSearch.Add(queryWordId.ToLower(), queryWord.ToLower(), "someData");
+            Assert.AreEqual("someData", wordSearch.SearchSingle(searchWord).ToString());
         }
         [TestMethod]
         [DataRow("testValue", "te")]
@@ -111,13 +111,13 @@ namespace StackExchange.Redis.WordQueryTest
         {
             string queryWordId = "testId";
 
-            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
             config.MinQueryLength = 3;
 
-            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
-            wordQuery.Add(queryWordId, queryWord);
+            RedisWordSearch wordSearch = new RedisWordSearch(Database, config);
+            wordSearch.Add(queryWordId, queryWord);
 
-            Assert.AreEqual(0, wordQuery.Search(searchWord).Count());
+            Assert.AreEqual(0, wordSearch.Search(searchWord).Count());
         }
 
         [TestMethod]
@@ -126,13 +126,13 @@ namespace StackExchange.Redis.WordQueryTest
         {
             string queryWordId = "testId";
 
-            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
             config.MaxQueryLength = 5;
 
-            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
-            wordQuery.Add(queryWordId, queryWord);
+            RedisWordSearch wordSearch = new RedisWordSearch(Database, config);
+            wordSearch.Add(queryWordId, queryWord);
 
-            Assert.AreEqual(0, wordQuery.Search(searchWord).Count());
+            Assert.AreEqual(0, wordSearch.Search(searchWord).Count());
         }
         [TestMethod]
         public void Min_MaxQueryLengthLimit_Sequential()
@@ -144,18 +144,18 @@ namespace StackExchange.Redis.WordQueryTest
 
             string queryWordId = "testId";
 
-            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
             config.MinQueryLength = 3;
             config.MaxQueryLength = 5;
 
-            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
-            wordQuery.Add(queryWordId, queryWord);
+            RedisWordSearch wordSearch = new RedisWordSearch(Database, config);
+            wordSearch.Add(queryWordId, queryWord);
 
-            Assert.AreEqual(1, wordQuery.Search(searcWordCorrect).Count());
+            Assert.AreEqual(1, wordSearch.Search(searcWordCorrect).Count());
 
-            Assert.AreEqual(0, wordQuery.Search(searchWordEmpty).Count());
+            Assert.AreEqual(0, wordSearch.Search(searchWordEmpty).Count());
 
-            Assert.AreEqual(0, wordQuery.Search(searchWordEmpty2).Count());
+            Assert.AreEqual(0, wordSearch.Search(searchWordEmpty2).Count());
 
         }
         [TestMethod]
@@ -170,20 +170,20 @@ namespace StackExchange.Redis.WordQueryTest
             string searchWordEmpty = "te";
             string searchWordEmpty2 = "testVal";
 
-            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
             config.MaxQueryLength = 5;
             config.MinQueryLength = 3;
             config.WordIndexingMethod = WordIndexing.SequentialCombination;
 
-            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
-            wordQuery.Add(queryWordId, queryWord);
+            RedisWordSearch wordSearch = new RedisWordSearch(Database, config);
+            wordSearch.Add(queryWordId, queryWord);
 
-            Assert.AreEqual(1, wordQuery.Search(searcWordCorrect).Count());
-            Assert.AreEqual(1, wordQuery.Search(searcWordCorrect2).Count());
-            Assert.AreEqual(1, wordQuery.Search(searcWordCorrect3).Count());
-            Assert.AreEqual(1, wordQuery.Search(searcWordCorrect4).Count());
-            Assert.AreEqual(0, wordQuery.Search(searchWordEmpty).Count());
-            Assert.AreEqual(0, wordQuery.Search(searchWordEmpty2).Count());
+            Assert.AreEqual(1, wordSearch.Search(searcWordCorrect).Count());
+            Assert.AreEqual(1, wordSearch.Search(searcWordCorrect2).Count());
+            Assert.AreEqual(1, wordSearch.Search(searcWordCorrect3).Count());
+            Assert.AreEqual(1, wordSearch.Search(searcWordCorrect4).Count());
+            Assert.AreEqual(0, wordSearch.Search(searchWordEmpty).Count());
+            Assert.AreEqual(0, wordSearch.Search(searchWordEmpty2).Count());
 
         }
         [TestMethod]
@@ -198,15 +198,15 @@ namespace StackExchange.Redis.WordQueryTest
             string queryWordId2 = "testId2";
             string queryWordId3 = "testId3";
 
-            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
 
-            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
-            wordQuery.Add(queryWordId, queryWord);
-            wordQuery.Add(queryWordId2, queryWord2);
-            wordQuery.Add(queryWordId3, queryWord3);
+            RedisWordSearch wordSearch = new RedisWordSearch(Database, config);
+            wordSearch.Add(queryWordId, queryWord);
+            wordSearch.Add(queryWordId2, queryWord2);
+            wordSearch.Add(queryWordId3, queryWord3);
 
-            Assert.AreEqual(3, wordQuery.Search(searchWord).Count());
-            Assert.AreEqual(2, wordQuery.Search(searchWord, limit: 2).Count());
+            Assert.AreEqual(3, wordSearch.Search(searchWord).Count());
+            Assert.AreEqual(2, wordSearch.Search(searchWord, limit: 2).Count());
         }
 
         [TestMethod]
@@ -221,12 +221,12 @@ namespace StackExchange.Redis.WordQueryTest
             string queryWordId2 = "testId2";
             string queryWordId3 = "testId3";
 
-            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
 
-            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
-            wordQuery.Add(queryWordId, queryWord);
-            wordQuery.Add(queryWordId2, queryWord2);
-            wordQuery.Add(queryWordId3, queryWord3);
+            RedisWordSearch wordSearch = new RedisWordSearch(Database, config);
+            wordSearch.Add(queryWordId, queryWord);
+            wordSearch.Add(queryWordId2, queryWord2);
+            wordSearch.Add(queryWordId3, queryWord3);
 
             Func<RedisValue, bool> filterFunc = value =>
             {
@@ -237,7 +237,7 @@ namespace StackExchange.Redis.WordQueryTest
                 return true;
             };
 
-            var results = wordQuery.Search(searchWord, filterFunc: filterFunc).AsStringList();
+            var results = wordSearch.Search(searchWord, filterFunc: filterFunc).AsStringList();
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual(queryWord, results[0]);
 
@@ -249,14 +249,14 @@ namespace StackExchange.Redis.WordQueryTest
             string queryWordId = "testId";
             string queryWord = "testValue";
 
-            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
             config.RankingProvider = new CurrentlyPopularRanking(AppSettings.RANKING_EPOCH, 1);
 
-            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
-            wordQuery.Add(queryWordId, queryWord);
+            RedisWordSearch wordSearch = new RedisWordSearch(Database, config);
+            wordSearch.Add(queryWordId, queryWord);
 
-            wordQuery.BoostInRanking(queryWordId);
-            Assert.AreNotEqual(0, wordQuery.CurrentScore(queryWordId));
+            wordSearch.BoostInRanking(queryWordId);
+            Assert.AreNotEqual(0, wordSearch.CurrentScore(queryWordId));
         }
 
         [TestMethod]
@@ -268,19 +268,19 @@ namespace StackExchange.Redis.WordQueryTest
             string queryWord = "testValue";
             string queryWord2 = "testValue2";
 
-            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
             config.RankingProvider = new CurrentlyPopularRanking(AppSettings.RANKING_EPOCH, 1);
 
-            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
-            wordQuery.Add(queryWordId, queryWord);
-            wordQuery.BoostInRanking(queryWordId);
+            RedisWordSearch wordSearch = new RedisWordSearch(Database, config);
+            wordSearch.Add(queryWordId, queryWord);
+            wordSearch.BoostInRanking(queryWordId);
 
-            wordQuery.Add(queryWordId2, queryWord2);
-            wordQuery.BoostInRanking(queryWordId2);
+            wordSearch.Add(queryWordId2, queryWord2);
+            wordSearch.BoostInRanking(queryWordId2);
 
-            wordQuery.BoostInRanking(queryWordId);
+            wordSearch.BoostInRanking(queryWordId);
 
-            var words = wordQuery.TopRankedSearches().AsStringList();
+            var words = wordSearch.TopRankedSearches().AsStringList();
 
             Assert.AreEqual(queryWord, words[0]);
             Assert.AreEqual(queryWord2, words[1]);
@@ -295,25 +295,25 @@ namespace StackExchange.Redis.WordQueryTest
             string queryWord = "testValue";
             double secondsToWait = 1;
 
-            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
             long minAgo = DateTimeOffset.UtcNow.AddSeconds(-10).ToUnixTimeSeconds();
 
             double halfLife = secondsToWait / 3600;
             config.RankingProvider = new CurrentlyPopularRanking(minAgo, halfLife);
 
-            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
-            wordQuery.Add(queryWordId, queryWord);
-            wordQuery.Add(queryWordId2, queryWord);
+            RedisWordSearch wordSearch = new RedisWordSearch(Database, config);
+            wordSearch.Add(queryWordId, queryWord);
+            wordSearch.Add(queryWordId2, queryWord);
 
-            wordQuery.BoostInRanking(queryWordId);
-            wordQuery.BoostInRanking(queryWordId);
+            wordSearch.BoostInRanking(queryWordId);
+            wordSearch.BoostInRanking(queryWordId);
 
             Thread.Sleep((int)secondsToWait * 1000);
 
-            wordQuery.BoostInRanking(queryWordId2);
+            wordSearch.BoostInRanking(queryWordId2);
 
-            double? score1 = wordQuery.CurrentScore(queryWordId);
-            double? score2 = wordQuery.CurrentScore(queryWordId2);
+            double? score1 = wordSearch.CurrentScore(queryWordId);
+            double? score2 = wordSearch.CurrentScore(queryWordId2);
 
             Assert.IsTrue( (score2 == score1) || (score2 == score1 * 2)) ;
         }
