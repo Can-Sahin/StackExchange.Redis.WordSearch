@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.5</TargetFramework>
     <PackageId>StackExchange.Redis.WordSearch</PackageId>
-    <PackageVersion>1.1.1</PackageVersion>
+    <PackageVersion>1.1.2</PackageVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Can Sahin</Authors>
     <Description>AutoCompletion and WordSearch extension for StackExchange.Redis</Description>
