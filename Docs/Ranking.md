@@ -16,19 +16,21 @@ Algorithm is from: http://qwerjk.com/posts/surfacing-interesting-content/
 
 **How it works:** It everytime increments the score of item by a certain value depending on the half life and anchor epoch. If half life time is 24 hours, it means 1 interaction now will have the same score as 2 interactions happened 24 hours ago. Hence the name 'half life'. After a while all scores will accumulate and redis sorted set scores limits will be exceeded. Sorted set can represent scores upto a certain limit of double values. The shorter half life is the shorter it takes to reach the limit. Then you have migrate all the keys as it is explained in the link. Pick 24 hours and you might not need to migrate for years. Pick 10 minutes and you will reach the point in couple days. 
 
-So, pick your SOME_CONST_EPOCH as so that inital score will be very small
-SOME_CONST_EPOCH = CONST_UNIX_TIME_BEFORE_DEPLOYMENT+ (1074 * halfLifeSeconds) 
+So, pick your PopularRankingConstEPOCH as so that inital score will be very small
+
+PopularRankingConstEPOCH = CONST_UNIX_TIME_BEFORE_DEPLOYMENT+ (1074 * halfLifeSeconds)
+
 This will initally give you double.MinValue (approx). Where CONST_UNIX_TIME_BEFORE_DEPLOYMENT is the epoch that needs to be hard coded before running/deploying. It will be the anchor
 
 This algorithm will aproximatly will run for `(1074 + 1023) * Half_Life_inHours` hours before needing a migration.
 
-Be aware of when you need to migrate
+Be aware of when you need to migrate.
 
 **Example `CurrentlyPopularRanking` usage** :
 ```csharp
     const long deploymentTime = 1511381314;
-    const long PopularRankingEPOCH = deploymentTime + (1074 * halfLifeSeconds) ;
-    static popularRanking = new CurrentlyPopularRanking(PopularRankingEPOCH, Half_Life);
+    const long PopularRankingConstEPOCH = deploymentTime + (1074 * halfLifeSeconds) ;
+    static popularRanking = new CurrentlyPopularRanking(PopularRankingConstEPOCH, Half_Life);
 
     RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
     
