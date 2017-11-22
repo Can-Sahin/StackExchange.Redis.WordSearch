@@ -9,15 +9,19 @@ namespace StackExchange.Redis.WordQuery
 {
     public class RedisWordQuery : IRedisWordQuery
     {
-        public RedisWordQueryConfiguration configuration {get;}
- 
+
+        public RedisWordQueryConfiguration configuration { get; }
+        private CumulativeDecayRateRankingHandler rankingHandler {get;}
+
         private RedisAccessClient redis { get; }
 
-        public RedisWordQuery(IDatabase database,RedisWordQueryConfiguration? configuration = null, IRedisExceptionHandler exceptionHandler = null)
+        public RedisWordQuery(IDatabase database, RedisWordQueryConfiguration? configuration = null)
         {
             this.configuration = configuration ?? RedisWordQueryConfiguration.defaultConfig;
-            this.redis = new RedisAccessClient(database, new RedisKeyComposer(this.configuration) ,exceptionHandler);
+            this.redis = new RedisAccessClient(database, new RedisKeyComposer(this.configuration));
+            this.rankingHandler = new CumulativeDecayRateRankingHandler(this.redis,this.configuration.RankingProvider);
         }
+        #region CRUD
         public bool Add(RedisKey redisPK, string searchableValue, string embedData, Encoding encoding = null, bool updateOnExist = true)
         {
             Encoding selectedEncoding = encoding ?? Encoding.UTF8;
@@ -34,12 +38,12 @@ namespace StackExchange.Redis.WordQuery
             string queryableWord = searchableValue ?? redisPK;
             byte[] data = embedData ?? Encoding.UTF8.GetBytes(queryableWord);
 
-            if(updateOnExist && redis.isQueryableExists(redisPK))
+            if (updateOnExist && redis.isQueryableExists(redisPK))
             {
                 string currentQueryableValue = redis.GetQueryableWord(redisPK);
                 if (currentQueryableValue.Equals(queryableWord))
                 {
-                    redis.SetQueryableWordsData(redisPK,data);
+                    redis.SetQueryableWordsData(redisPK, data);
                     return true;
                 }
                 else
@@ -47,34 +51,37 @@ namespace StackExchange.Redis.WordQuery
                     Remove(redisPK);
                 }
             }
-            List<string> partials = CreateAllPartialsForWord(queryableWord,configuration.WordIndexingMethod).ToList();
-            return redis.AddQueryableWord(redisPK,queryableWord,data,partials);
+            List<string> partials = CreateAllPartialsForWord(queryableWord, configuration.WordIndexingMethod).ToList();
+            return redis.AddQueryableWord(redisPK, queryableWord, data, partials);
         }
         public bool Update(RedisKey redisPK, string searchableValue = null, byte[] embedData = null, bool onlyIfExists = true)
         {
-            if(onlyIfExists && !redis.isQueryableExists(redisPK))
+            if (onlyIfExists && !redis.isQueryableExists(redisPK))
             {
                 return false;
             }
-            return Add(redisPK,searchableValue,embedData);
+            return Add(redisPK, searchableValue, embedData);
         }
         public bool Remove(RedisKey redisPK)
         {
             string queryableWord = redis.GetQueryableWord(redisPK);
-            List<string> partials = CreateAllPartialsForWord(queryableWord,configuration.WordIndexingMethod).ToList();
+            List<string> partials = CreateAllPartialsForWord(queryableWord, configuration.WordIndexingMethod).ToList();
 
-            return redis.RemoveQueryableWord(redisPK,partials);
+            return redis.RemoveQueryableWord(redisPK, partials);
         }
+        #endregion
+
+        #region Search
         public T SearchSingle<T>(string queryString)
         {
             var result = configuration.Serializer.Deserialize<T>(SearchSingle(queryString));
             return result;
         }
 
-        public List<T> Search<T>(string queryString, int limit = 0, Func<T,bool> filterFunc = null)
+        public List<T> Search<T>(string queryString, int limit = 0, Func<T, bool> filterFunc = null)
         {
             var searchResults = Search(queryString, limit).AsByte();
-            var results = searchResults.Select(d => configuration.Serializer.Deserialize<T>(d));
+            var results = searchResults.Select(r => configuration.Serializer.Deserialize<T>(r));
             if (filterFunc != null)
             {
                 var filteredResults = results.Where(r => !filterFunc(r));
@@ -89,7 +96,8 @@ namespace StackExchange.Redis.WordQuery
         public RedisValue SearchSingle(string queryString)
         {
             var searchResults = Search(queryString, 2);
-            if(searchResults.Count() != 1){
+            if (searchResults.Count() != 1)
+            {
                 throw new InvalidOperationException("Sequence contains more than one matching element");
             }
             var result = searchResults.First();
@@ -98,7 +106,8 @@ namespace StackExchange.Redis.WordQuery
         public RedisValue SearchSingleOrDefault(string queryString, RedisValue defaultValue = default(RedisValue))
         {
             var searchResults = Search(queryString, 2);
-            if(searchResults.Count() != 1){
+            if (searchResults.Count() != 1)
+            {
                 return defaultValue;
             }
             var result = searchResults.First();
@@ -107,12 +116,10 @@ namespace StackExchange.Redis.WordQuery
 
         public IEnumerable<RedisValue> Search(string queryString, int limit = 0, Func<RedisValue, bool> filterFunc = null)
         {
-            List<Tuple<RedisValue, double>> searchResults = redis.GetSearchEntries(queryString,limit);
-            List<RedisValue> pkList = searchResults.Select(r =>r.Item1).ToList();
- 
+            List<RedisValue> pkList = redis.GetSearchEntries(queryString, limit).Select(r => r.Element).ToList();
             var results = redis.GetDataOfQueryablePKs(pkList);
 
-            if(filterFunc != null)
+            if (filterFunc != null)
             {
                 var filteredResults = results.Where(r => !filterFunc(r));
                 return filteredResults;
@@ -123,28 +130,45 @@ namespace StackExchange.Redis.WordQuery
             }
         }
 
-        public bool IncrementRanking(RedisKey redisPK, double multiplierCoefficient = 1)
+        public double? BoostInRanking(RedisKey redisPK, double multiplierCoefficient = 1)
         {
-            if(configuration.RankingProvider == null || !redis.isQueryableExists(redisPK)){
-                return false;
+            if (configuration.RankingProvider == null || !redis.isQueryableExists(redisPK))
+            {
+                return null;
             }
             string queryableWord = redis.GetQueryableWord(redisPK);
-            if(string.IsNullOrEmpty(queryableWord)){
-                return false;
+            if (string.IsNullOrEmpty(queryableWord))
+            {
+                return null;
             }
+            List<string> partials = CreateAllPartialsForWord(queryableWord, configuration.WordIndexingMethod).ToList();
+            
+            return rankingHandler.BoostInRanking(redisPK,partials,multiplierCoefficient);
+        }
 
-            List<string> partials = CreateAllPartialsForWord(queryableWord,configuration.WordIndexingMethod).ToList();
-            double scoreToIncrement = configuration.RankingProvider.ScoreToIncrementNow(multiplierCoefficient);
-            return redis.IncrementScore(redisPK,partials,scoreToIncrement);
-        }
-        public double CurrentScore(RedisKey redisPK)
+        public IEnumerable<T> TopRankedSearches<T>(int limit = 0)
         {
-            return redis.CurrentScore(redisPK);
+            var topRankedResults = TopRankedSearches(limit).AsByte();
+            var results = topRankedResults.Select(r => configuration.Serializer.Deserialize<T>(r));
+            return results;
         }
+
+        public IEnumerable<RedisValue> TopRankedSearches(int limit = 0)
+        {
+            return rankingHandler.TopRankedSearches(limit) ?? Enumerable.Empty<RedisValue>();
+        }
+
+        public double? CurrentScore(RedisKey redisPK)
+        {
+            return rankingHandler.CurrentScore(redisPK);
+        }
+        #endregion
+        
+        #region Private
         private List<string> CreateAllPartialsForWord(string word, WordIndexing method)
         {
             if (string.IsNullOrEmpty(word)) return new List<string>();
-            string queryWord = word.RemoveSpecialCharacters().Replace(" ",String.Empty);
+            string queryWord = word.RemoveSpecialCharacters().Replace(" ", String.Empty);
 
             List<string> prefixes = new List<string>();
 
@@ -161,9 +185,10 @@ namespace StackExchange.Redis.WordQuery
                 }
                 startingIndex++;
             } while (startingIndex <= queryWord.Length - configuration.MinQueryLength && method == WordIndexing.SequentialCombination);
-       
+
             return prefixes;
         }
+        #endregion
 
     }
 

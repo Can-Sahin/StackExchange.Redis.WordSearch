@@ -9,56 +9,49 @@ namespace StackExchange.Redis.WordQuery
         /// <summary>
         /// Read-only configuration settings
         /// </summary>
-        /// <returns></returns>
         RedisWordQueryConfiguration configuration { get; }
 
         /// <summary>
-        /// Adds string to be searched
+        /// Adds search item with string data
         /// </summary>
         /// <param name="redisPK">PrimaryKey(Unique) value in redis</param>
         /// <param name="searchableValue">String to search later</param>
         /// <param name="embedData">String to be retrieved from search</param>
         /// <param name="encoding">Encoding of Data string</param>
         /// <param name="updateOnExist"></param>
-        /// <returns></returns>      
-
         bool Add(RedisKey redisPK, string searchableValue, string embedData, Encoding encoding = null, bool updateOnExist = true);
+
         /// <summary>
-        /// Adds string to be searched with serialized data 
+        /// Adds search item with serialized data 
         /// </summary>
         /// <param name="redisPK">PrimaryKey(Unique) value in redis</param>
         /// <param name="searchableValue">String to search later</param>
         /// <param name="embedData"> Serialized data to be retrieved from search</param>
         /// <param name="updateOnExist"></param>
-        /// <returns></returns>
         bool AddObject<T>(RedisKey redisPK, string searchableValue, T embedData, bool updateOnExist = true);
 
         /// <summary>
-        /// Adds string to be searched with raw data 
+        /// Adds search item with raw data 
         /// </summary>
         /// <param name="redisPK">PrimaryKey(Unique) value in redis</param>
         /// <param name="searchableValue">String to search later</param>
         /// <param name="embedData"> Raw data to be retrieved from search</param>
         /// <param name="updateOnExist"></param>  
-        /// <returns></returns>        
-
         bool Add(RedisKey redisPK, string searchableValue = null, byte[] embedData = null, bool updateOnExist = true);
 
         /// <summary>
-        /// Updates string to be searched
+        /// Update the search item
         /// </summary>
         /// <param name="redisPK">PrimaryKey(Unique) value of previosuly added item in redis</param>
         /// <param name="searchableValue">Search string to replace</param>
         /// <param name="embedData"> Raw data to replace </param>
         /// <param name="onlyIfExists"></param>
-        /// <returns></returns>    
         bool Update(RedisKey redisPK, string searchableValue = null, byte[] embedData = null, bool onlyIfExists = true);
 
         /// <summary>
-        /// Removes primary key from searchables
+        /// Remove the search item
         /// </summary>
         /// <param name="redisPK">PrimaryKey(Unique) value of previosuly added item in redis</param>
-        /// <returns></returns>
         bool Remove(RedisKey redisPK);
 
         /// <summary>
@@ -99,5 +92,34 @@ namespace StackExchange.Redis.WordQuery
         /// <returns>Enumarable results</returns>
         IEnumerable<RedisValue> Search(string queryString, int limit = 0, Func<RedisValue, bool> filterFunc = null);
 
+        /// <summary>
+        /// Tells its RankingPRovider to increment ranking score of the search item.
+        /// </summary>
+        /// <param name="redisPK">PrimaryKey(Unique) value of previosuly added item in redis</param>
+        /// <param name="multiplierCoefficient">Paramater for RankingProvider to use when incrementing</param>
+        /// <returns>Incremented Score or null if item doesn't exits</returns>
+        double? BoostInRanking(RedisKey redisPK, double multiplierCoefficient = 1);
+     
+        /// <summary>
+        /// Returns deserialized search items in descending order by scores
+        /// </summary>
+        /// <param name="limit"></param>
+        /// <returns>Enumarable results</returns>
+        IEnumerable<T> TopRankedSearches<T>(int limit = 0);
+
+        /// <summary>
+        /// Returns search items in descending order by scores
+        /// </summary>
+        /// <param name="limit"></param>
+        /// <returns>Enumarable results</returns>
+        IEnumerable<RedisValue> TopRankedSearches(int limit = 0);
+  
+        /// <summary>
+        /// Current score of search item. Nil if item doesn't exits
+        /// </summary>
+        /// <param name="redisPK">PrimaryKey(Unique) value of previosuly added item in redis</param>
+        /// <returns>Score or null if item doesn't exits</returns>
+        double? CurrentScore(RedisKey redisPK);
+        
     }
 }

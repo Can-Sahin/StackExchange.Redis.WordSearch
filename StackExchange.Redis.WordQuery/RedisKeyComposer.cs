@@ -4,16 +4,57 @@ using System.Text;
 
 namespace StackExchange.Redis.WordQuery
 {
+    public interface IRedisKeyNameConfiguration
+    {
+        /// <summary>
+        /// ':' like seperator for the key concatenation
+        /// </summary>
+        string Seperator { get; }
+
+        /// <summary>
+        /// Prefix for isolating search environment
+        /// </summary>
+        string ContainerPrefix { get; }
+
+        /// <summary>
+        /// Suffix for hash key of searchable items
+        /// </summary>
+        string QueryableItemsSuffix { get; }
+
+        /// <summary>
+        /// Suffix for hash key of searchable items' data
+        /// </summary>
+        string QueryableItemsDataSuffix { get; }
+
+        /// <summary>
+        /// Suffix for sorted sets of searchable items
+        /// </summary>
+        string QuerySuffix { get; }
+
+        /// <summary>
+        /// Suffix for sorted set of searchable items' score
+        /// </summary>
+        string QueryableItemsRankingSuffix { get; }
+    }
+    internal class DefaultRedisKeyNameConfiguration : IRedisKeyNameConfiguration
+    {
+        public string Seperator => ":::";
+        public string ContainerPrefix => "WQ";
+        public string QueryableItemsSuffix => "Queryable";
+        public string QueryableItemsDataSuffix => "QueryableData";
+        public string QuerySuffix => "Query";
+        public string QueryableItemsRankingSuffix => "QueryableRanking";
+    }
     internal class RedisKeyComposer
     {
         internal const string DefaultSeperator = ":::";
         internal const string DefaultContainerPrefix = "WQ";
-        internal const String QueryableItemsSuffix = "Queryable";
-        internal const String QueryableItemsDataSuffix = "QueryableData";
-        internal const String QuerySuffix = "Query";
-        internal const String QueryableItemsRankingSuffix = "QueryableRanking";
+        internal const string QueryableItemsSuffix = "Queryable";
+        internal const string QueryableItemsDataSuffix = "QueryableData";
+        internal const string QuerySuffix = "Query";
+        internal const string QueryableItemsRankingSuffix = "QueryableRanking";
 
-
+        public IRedisKeyNameConfiguration KeyName {get;}
         internal bool IsCaseSensitive { get; }
         internal string Seperator { get; }
         internal string ContainerPrefix { get; }
@@ -28,6 +69,7 @@ namespace StackExchange.Redis.WordQuery
             Seperator = string.IsNullOrEmpty(configuration.ParameterSeperator) ? DefaultSeperator : configuration.ParameterSeperator;
             ContainerPrefix = string.IsNullOrEmpty(configuration.ContainerPrefix) ? DefaultContainerPrefix : configuration.ContainerPrefix;
             IsCaseSensitive = configuration.IsCaseSensitive;
+            KeyName = configuration.KeyNameConfiguration;
         }
         internal string CompactRedisKey(RedisKey pk, params string[] param)
         {

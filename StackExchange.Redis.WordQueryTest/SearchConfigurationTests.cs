@@ -242,21 +242,48 @@ namespace StackExchange.Redis.WordQueryTest
             Assert.AreEqual(queryWord, results[0]);
 
         }
+
         [TestMethod]
         public void IncrementRanking()
         {
             string queryWordId = "testId";
             string queryWord = "testValue";
-            string searchWord = "testV";
 
             RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
-            config.RankingProvider = new PopularStreamRanking(AppSettings.RANKING_EPOCH, 1);
+            config.RankingProvider = new CurrentlyPopularRanking(AppSettings.RANKING_EPOCH, 1);
 
             RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
             wordQuery.Add(queryWordId, queryWord);
 
-            wordQuery.IncrementRanking(queryWordId);
+            wordQuery.BoostInRanking(queryWordId);
             Assert.AreNotEqual(0, wordQuery.CurrentScore(queryWordId));
+        }
+
+        [TestMethod]
+        public void TopRankings()
+        {
+            string queryWordId = "testId";
+            string queryWordId2 = "testId2";
+
+            string queryWord = "testValue";
+            string queryWord2 = "testValue2";
+
+            RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
+            config.RankingProvider = new CurrentlyPopularRanking(AppSettings.RANKING_EPOCH, 1);
+
+            RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
+            wordQuery.Add(queryWordId, queryWord);
+            wordQuery.BoostInRanking(queryWordId);
+
+            wordQuery.Add(queryWordId2, queryWord2);
+            wordQuery.BoostInRanking(queryWordId2);
+
+            wordQuery.BoostInRanking(queryWordId);
+
+            var words = wordQuery.TopRankedSearches().AsStringList();
+
+            Assert.AreEqual(queryWord, words[0]);
+            Assert.AreEqual(queryWord2, words[1]);
         }
 
         [TestMethod]
@@ -266,26 +293,29 @@ namespace StackExchange.Redis.WordQueryTest
             string queryWordId2 = "testId2";
 
             string queryWord = "testValue";
-            string searchWord = "testV";
+            double secondsToWait = 1;
 
             RedisWordQueryConfiguration config = RedisWordQueryConfiguration.defaultConfig;
-            double halfLife = (double)5 / 3600 ; // 3 seconds
-            config.RankingProvider = new PopularStreamRanking(AppSettings.RANKING_EPOCH, halfLife);
+            long minAgo = DateTimeOffset.UtcNow.AddSeconds(-10).ToUnixTimeSeconds();
+
+            double halfLife = secondsToWait / 3600;
+            config.RankingProvider = new CurrentlyPopularRanking(minAgo, halfLife);
 
             RedisWordQuery wordQuery = new RedisWordQuery(Database, config);
             wordQuery.Add(queryWordId, queryWord);
             wordQuery.Add(queryWordId2, queryWord);
 
-            wordQuery.IncrementRanking(queryWordId);
-            wordQuery.IncrementRanking(queryWordId);
+            wordQuery.BoostInRanking(queryWordId);
+            wordQuery.BoostInRanking(queryWordId);
 
-            Thread.Sleep(3000);
-            wordQuery.IncrementRanking(queryWordId2);
+            Thread.Sleep((int)secondsToWait * 1000);
 
-            double score1 = wordQuery.CurrentScore(queryWordId);
-            double score2 = wordQuery.CurrentScore(queryWordId2);
+            wordQuery.BoostInRanking(queryWordId2);
 
-            Assert.IsTrue(score2 > score1);
+            double? score1 = wordQuery.CurrentScore(queryWordId);
+            double? score2 = wordQuery.CurrentScore(queryWordId2);
+
+            Assert.IsTrue( (score2 == score1) || (score2 == score1 * 2)) ;
         }
 
     }

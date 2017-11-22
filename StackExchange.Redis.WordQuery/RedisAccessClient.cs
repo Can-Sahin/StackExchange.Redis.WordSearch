@@ -11,11 +11,9 @@ namespace StackExchange.Redis.WordQuery
     {
         private RedisKeyComposer keyManager { get; }
         private IDatabase RedisDatabase { get; }
-        private IRedisExceptionHandler ExceptionHandler { get; }
 
-        public RedisAccessClient(IDatabase database, RedisKeyComposer keyManager, IRedisExceptionHandler handler = null)
+        public RedisAccessClient(IDatabase database, RedisKeyComposer keyManager)
         {
-            this.ExceptionHandler = handler;
             this.RedisDatabase = database;
             this.keyManager = keyManager;
         }
@@ -70,11 +68,11 @@ namespace StackExchange.Redis.WordQuery
             return RedisDatabase.HashExists(keyManager.QueryableItemsKey, redisPKString);
         }
 
-        internal List<Tuple<RedisValue, double>> GetSearchEntries(string queryString, int limit)
+        internal SortedSetEntry[] GetSearchEntries(string queryString, int limit)
         {
             string sortedSetKey = keyManager.QueryKey(queryString);
             var entries = RedisDatabase.SortedSetRangeByRankWithScores(sortedSetKey, 0, limit - 1, Order.Descending);
-            return entries.Select(e => new Tuple<RedisValue, double>(e.Element, e.Score)).ToList(); ;
+            return entries;
         }
         internal IEnumerable<RedisValue> GetDataOfQueryablePKs(List<RedisValue> pkList)
         {
@@ -102,7 +100,7 @@ namespace StackExchange.Redis.WordQuery
 
             var tran = RedisDatabase.CreateTransaction();
 
-            tran.HashIncrementAsync(keyManager.QueryableItemsRankingKey, redisPKString, increment);
+            tran.SortedSetIncrementAsync(keyManager.QueryableItemsRankingKey, redisPKString, increment);
             foreach (var subString in partials)
             {
                 string sortedSetKey = keyManager.QueryKey(subString);
@@ -111,10 +109,21 @@ namespace StackExchange.Redis.WordQuery
 
             return tran.Execute();
         }
-        internal double CurrentScore(RedisKey redisPK)
+        internal long TrimTopRankedQueryables(int size)
+        {
+            if(size <= 0) return 0;
+            return RedisDatabase.SortedSetRemoveRangeByRank(keyManager.QueryableItemsRankingKey,0, -size);
+        }
+        internal double? CurrentScore(RedisKey redisPK)
         {
             string redisPKString = keyManager.AdjustedValue(redisPK);
-            return (double)RedisDatabase.HashGet(keyManager.QueryableItemsRankingKey, redisPKString);
+            return RedisDatabase.SortedSetScore(keyManager.QueryableItemsRankingKey, redisPKString);
+        }
+        internal SortedSetEntry[] TopRankedQueryables(int limit = 0)
+        {
+            var entries = RedisDatabase.SortedSetRangeByRankWithScores(keyManager.QueryableItemsRankingKey, 0, limit - 1, Order.Descending);
+            return entries;
+
         }
     }
 }
