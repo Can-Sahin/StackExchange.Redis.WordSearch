@@ -4,6 +4,9 @@ using System.Text;
 
 namespace StackExchange.Redis.WordSearch
 {
+    /// <summary>
+    /// RedisWordSearch interface
+    /// </summary>
     public interface IRedisWordSearch
     {
         /// <summary>
@@ -58,39 +61,39 @@ namespace StackExchange.Redis.WordSearch
         /// Search and deserialize for a single result.
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="queryString">String to search</param>
-        T SearchSingle<T>(string queryString);
+        /// <param name="searchString">String to search</param>
+        T SearchSingle<T>(string searchString);
 
         /// <summary>
         /// Search for a string and deserialize the result
         /// </summary>
-        /// <param name="queryString">String to search</param>
+        /// <param name="searchString">String to search</param>
         /// <param name="limit">Max number of results</param>
         /// <param name="filterFunc">Filter function</param>
         /// <returns>List of serialized results</returns>
-        List<T> Search<T>(string queryString, int limit = 0, Func<T, bool> filterFunc = null);
+        List<T> Search<T>(string searchString, int limit = 0, Func<T, bool> filterFunc = null);
 
         /// <summary>
         /// Search for a single result.
         /// </summary>
-        /// <param name="queryString">String to search</param>
-        RedisValue SearchSingle(string queryString);
+        /// <param name="searchString">String to search</param>
+        RedisValue SearchSingle(string searchString);
 
         /// <summary>
         /// Search for a single result, default if not successfull
         /// </summary>
-        /// <param name="queryString">String to search</param>
+        /// <param name="searchString">String to search</param>
         /// <param name="defaultValue"></param>
-        RedisValue SearchSingleOrDefault(string queryString, RedisValue defaultValue = default(RedisValue));
+        RedisValue SearchSingleOrDefault(string searchString, RedisValue defaultValue = default(RedisValue));
 
         /// <summary>
         /// Search for a string
         /// </summary>
-        /// <param name="queryString">String to search</param>
+        /// <param name="searchString">String to search</param>
         /// <param name="limit">Max number of results</param>
         /// <param name="filterFunc">Filter function</param>
         /// <returns>Enumarable results</returns>
-        IEnumerable<RedisValue> Search(string queryString, int limit = 0, Func<RedisValue, bool> filterFunc = null);
+        IEnumerable<RedisValue> Search(string searchString, int limit = 0, Func<RedisValue, bool> filterFunc = null);
 
         /// <summary>
         /// Tells its RankingPRovider to increment ranking score of the search item.

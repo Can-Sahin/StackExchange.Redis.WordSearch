@@ -4,6 +4,7 @@ using StackExchange.Redis.WordSearch;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
+
 namespace StackExchange.Redis.WordSearch.Test
 {
     [TestClass]
@@ -72,7 +73,7 @@ namespace StackExchange.Redis.WordSearch.Test
 
         [TestMethod]
         [DataRow("testValue", "testV")]
-        public void MultipleQueryableWord(string queryWord, string searchWord)
+        public void MultipleSearchableWord(string queryWord, string searchWord)
         {
             string queryWordId = "testId";
             string queryWordId2 = "testId2";
@@ -88,7 +89,7 @@ namespace StackExchange.Redis.WordSearch.Test
         }
         [TestMethod]
         [DataRow("testValue", "testV", "testData")]
-        public void QueryableWord_With_Data(string queryWord, string searchWord, string data)
+        public void SearchableWord_With_Data(string queryWord, string searchWord, string data)
         {
             string queryWordId = "testId";
 
@@ -100,7 +101,7 @@ namespace StackExchange.Redis.WordSearch.Test
 
         [TestMethod]
         [DataRow("testValue", "testV", "testData")]
-        public void QueryableWord_AddUpdate_Data(string queryWord, string searchWord, string data)
+        public void SearchableWord_AddUpdate_Data(string queryWord, string searchWord, string data)
         {
             string queryWordId = "testId";
             string dataSecond = "testData2";
@@ -114,7 +115,7 @@ namespace StackExchange.Redis.WordSearch.Test
 
         [TestMethod]
         [DataRow("testValue", "testV", "testData")]
-        public void QueryableWord_Update_Data(string queryWord, string searchWord, string data)
+        public void SearchableWord_Update_Data(string queryWord, string searchWord, string data)
         {
             string queryWordId = "testId";
             string dataSecond = "testData2";
@@ -127,7 +128,7 @@ namespace StackExchange.Redis.WordSearch.Test
         }
         [TestMethod]
         [DataRow("testValue", "testV", "testData")]
-        public void QueryableWord_SerializedData(string queryWord, string searchWord, string data)
+        public void SearchableWord_SerializedData(string queryWord, string searchWord, string data)
         {
             string queryWordId = "testId";
             TestObject dataObject = new TestObject(data);
@@ -144,7 +145,7 @@ namespace StackExchange.Redis.WordSearch.Test
         }
         [TestMethod]
         [DataRow("testValue", "testV", "testData")]
-        public void QueryableWord_AddRemove(string queryWord, string searchWord, string data)
+        public void SearchableWord_AddRemove(string queryWord, string searchWord, string data)
         {
             string queryWordId = "testId";
 

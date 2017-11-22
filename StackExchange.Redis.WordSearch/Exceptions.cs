@@ -13,9 +13,9 @@ namespace StackExchange.Redis.WordSearch
         public KeyNameConfigurationNotFoundException() : base("There is no KeyNameConfiguration found in the RedisWordSearchConfiguration") { }
     }
 
-    public class CurrentlyPopularityRankingAlgorithmOutOfLimit : Exception
+    public class CurrentPopularityRankingAlgorithmOutOfLimit : Exception
     {
-        public CurrentlyPopularityRankingAlgorithmOutOfLimit() : base("Current popularity scores exceeded the redis sorted set score limit") { }
+        public CurrentPopularityRankingAlgorithmOutOfLimit() : base("Current popularity scores exceeded the redis sorted set score limit") { }
     }
     public class RankingAlgorithmNotFound : Exception
     {

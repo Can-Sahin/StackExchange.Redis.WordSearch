@@ -5,19 +5,45 @@ using System.Text;
 namespace StackExchange.Redis.WordSearch
 {
 
+    /// <summary>
+    /// Strategy to strip words for searching
+    /// </summary>
     public enum WordIndexing { SequentialOnly, SequentialCombination }
 
+    /// <summary>
+    /// RedisWordSearch Settings
+    /// </summary>
     public struct RedisWordSearchConfiguration
     {
-        public int MinQueryLength { get; set; }
-        public int MaxQueryLength { get; set; }
+        /// <summary>
+        /// Min string length to search
+        /// </summary>
+        public int MinSearchLength { get; set; }
+
+        /// <summary>
+        /// Max string length to search
+        /// </summary>
+        public int MaxSearchLength { get; set; }
+
+        /// <summary>
+        /// Lowercase or uppercase senstivity for searches
+        /// </summary>
         public bool IsCaseSensitive { get; set; }
+
+        /// <summary>
+        /// Strategy to strip words for searching
+        /// </summary>
         public WordIndexing WordIndexingMethod { get; set; }
 
-        public string ParameterSeperator { get; set; }
-        public string ContainerPrefix { get; set; }
-        public ICumulativeDecayRateRanking RankingProvider { get; set; }
+        /// <summary>
+        /// Ranking algorithm provider
+        /// </summary>
+        public IRelativeDecayRateRanking RankingProvider { get; set; }
         private ISerializer _Serializer;
+
+        /// <summary>
+        /// Serializer for search data
+        /// </summary>
         public ISerializer Serializer
         {
             get
@@ -35,6 +61,9 @@ namespace StackExchange.Redis.WordSearch
         }
         private IRedisKeyNameConfiguration _KeyNameConfiguration;
 
+        /// <summary>
+        /// Redis key names settings
+        /// </summary>
         public IRedisKeyNameConfiguration KeyNameConfiguration
         {
             get
@@ -51,15 +80,16 @@ namespace StackExchange.Redis.WordSearch
             }
         }
 
+        /// <summary>
+        /// Default configuration values
+        /// </summary>
         public static RedisWordSearchConfiguration defaultConfig = new RedisWordSearchConfiguration
         {
-            MinQueryLength = 1,
-            MaxQueryLength = -1,
+            MinSearchLength = 1,
+            MaxSearchLength = -1,
             IsCaseSensitive = true,
             KeyNameConfiguration = new DefaultRedisKeyNameConfiguration(),
-            WordIndexingMethod = WordIndexing.SequentialOnly,
-            ParameterSeperator = RedisKeyComposer.DefaultSeperator,
-            ContainerPrefix = RedisKeyComposer.DefaultContainerPrefix
+            WordIndexingMethod = WordIndexing.SequentialOnly
         };
     }
 }
