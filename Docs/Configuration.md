@@ -24,7 +24,7 @@ Currently default values:
 
 ```csharp
     // Set each config if you want to change that particular settings
-    // Then create RedisWordSearch with that configuration. Otherwise DefaultRedisKeyNameConfiguration is used.
+    // Then create RedisWordSearch with that configuration. Otherwise RedisWordSearchConfiguration.defaultConfig is used.
 
     RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
 

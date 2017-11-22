@@ -11,7 +11,9 @@ Extra features:
 
 # Installation
 `PM> Install-Package StackExchange.Redis.WordSearch`
+
 or
+
 `$ dotnet add package StackExchange.Redis.WordSearch`
 
 # Usage
@@ -61,7 +63,7 @@ Serialized Data:
 
     List<PartnerOfEmma> results = wordSearch.Search<PartnerOfEmma>("Emma").AsStringList();
 ```
-Check [docs] for more usage examples;
+Check [docs] for more usage examples
 
 Use `RedisWordSearchConfiguration` to:
 - Enable Popularity Ranking (default half life decay rate algorithm is implemented)
@@ -74,4 +76,4 @@ Use `RedisWordSearchConfiguration` to:
 MIT
 
 [StackExchange.Redis]: <https://github.com/StackExchange/StackExchange.Redis>
-[docs]: <https://github.com/Can-Sahin/StackExchange.Redis.WordSearch/tree/master/docs>
+[docs]: <https://github.com/Can-Sahin/StackExchange.Redis.WordSearch/tree/master/Docs>
