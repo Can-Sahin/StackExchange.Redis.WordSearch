@@ -45,7 +45,7 @@ Currently default values:
 
     //Finally 
     // IDatabase database = ConnectionMultiplexer.GetDatabase();
-    RedisWordSearch redisSearch = new RedisWordSearch(Database, config);
+    IRedisWordSearch redisSearch = new RedisWordSearch(Database, config);
     .
     .
     .

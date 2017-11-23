@@ -20,7 +20,7 @@ So, pick your `PopularRankingConstEPOCH` as so that inital score will be very sm
 
 `PopularRankingConstEPOCH = CONST_UNIX_TIME_BEFORE_DEPLOYMENT+ (1074 * HalfLifeInSeconds)`
 
-This will initally give you double.MinValue (approx). Where CONST_UNIX_TIME_BEFORE_DEPLOYMENT is the epoch that needs to be hard coded before running/deploying. It will be the anchor
+This will initally give you double.MinValue (approx). Where `CONST_UNIX_TIME_BEFORE_DEPLOYMENT` is the epoch that needs to be hard coded before running/deploying. It will be the anchor
 
 This algorithm will aproximatly will run for `(1074 + 1023) * Half_Life_inHours` hours before needing a migration.
 
@@ -28,21 +28,21 @@ Be aware of when you need to migrate.
 
 **Example `CurrentlyPopularRanking` usage** :
 ```csharp
+    double Half_Life = 24 // Hours
+    int halfLifeSeconds = Half_Life * 60 * 60;
+
     const long deploymentTime = 1511381314;
     const long PopularRankingConstEPOCH = deploymentTime + (1074 * halfLifeSeconds) ;
     static popularRanking = new CurrentlyPopularRanking(PopularRankingConstEPOCH, Half_Life);
 
     RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
     
-    double Half_Life = 24 // Hours
-    int halfLifeSeconds = Half_Life * 60 * 60;
-
     // Assign the same instance with same constEpoch 
     // DONT CHANGE THE PopularRankingEPOCH throughout the code
     config.RankingProvider = popularRanking;
 
 
-    RedisWordSearch redisSearch = new RedisWordSearch(Database, config);
+    IRedisWordSearch redisSearch = new RedisWordSearch(Database, config);
     redisSearch.Add("IdOfWatson", "EmmaWatson");
     redisSearch.Add("IdOfStone", "EmmaStone");
 
@@ -59,3 +59,7 @@ Be aware of when you need to migrate.
     // ["EmmaWatson", "EmmaStone"] EmmaWatson is ordered first because she is twice as popular
 ```
 
+## Todo
+
+1. Migration of keys
+2. Several more ranking algorithms

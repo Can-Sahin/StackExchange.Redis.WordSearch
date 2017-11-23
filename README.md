@@ -16,11 +16,13 @@ or
 
 `$ dotnet add package StackExchange.Redis.WordSearch`
 
-# Usage
+**See the [docs] for usage and examples**
+
+# Basic Usage
 For basic AutoCompletion:
 ```csharp
 //  IDatabase database = ConnectionMultiplexer.GetDatabase();
-    RedisWordSearch redisSearch = new RedisWordSearch(database);
+    IRedisWordSearch redisSearch = new RedisWordSearch(database); //Use IRedisWordSearch to see the xml documentation
     redisSearch.Add("IdOfWatson", "EmmaWatson");
     redisSearch.Add("IdOfStone", "EmmaStone");
 
@@ -32,10 +34,9 @@ Ranking Popular Searches:
 ```csharp
 // IDatabase database = ConnectionMultiplexer.GetDatabase();
     RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
-    double Half_Life = 24 // Hours
-    config.RankingProvider = new CurrentlyPopularRanking(AppSettings.RANKING_EPOCH, Half_Life);
+    config.RankingProvider = new CurrentlyPopularRanking(ANCHOR_EPOCH, 24); //24 hours half life
 
-    RedisWordSearch redisSearch = new RedisWordSearch(Database, config);
+    IRedisWordSearch redisSearch = new RedisWordSearch(Database, config);
     redisSearch.Add("IdOfWatson", "EmmaWatson");
     redisSearch.Add("IdOfStone", "EmmaStone");
 
@@ -49,7 +50,7 @@ Ranking Popular Searches:
     var words = redisSearch.TopRankedSearches().AsStringList();
     // ["EmmaWatson", "EmmaStone"] EmmaWatson is ordered first because she is twice as popular
 ```
-See the [docs] for detailed explanation
+See the [docs] for detailed `Ranking` explanation
 
 Serialized Data:
 ```csharp
@@ -57,13 +58,12 @@ Serialized Data:
     RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
     config.Serializer = new MyJsonSerializer();
 
-    RedisWordSearch wordSearch = new RedisWordSearch(database,config);
+    IRedisWordSearch wordSearch = new RedisWordSearch(database,config);
     wordSearch.Add("IdOfWatson", "EmmaWatson", new PartnerOfEmma("HarryPotter"));
     wordSearch.Add("IdOfStone", "EmmaStone", new PartnerOfEmma("PeterParker"));
 
     List<PartnerOfEmma> results = wordSearch.Search<PartnerOfEmma>("Emma").AsStringList();
 ```
-Check [docs] for more usage examples
 
 Use `RedisWordSearchConfiguration` to:
 - Enable Popularity Ranking (default half life decay rate algorithm is implemented)
@@ -71,6 +71,8 @@ Use `RedisWordSearchConfiguration` to:
 - Put Redis Key Prefix
 - Enable Case Insensivity
 - Specify searching method (autocomplete sequentially or search mixed ("mma" for searching "EmmaWatson")
+
+**For details:  [docs]**
 
 # License
 MIT
