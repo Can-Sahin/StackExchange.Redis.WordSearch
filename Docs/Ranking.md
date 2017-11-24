@@ -6,7 +6,7 @@
 
 1. All search results are ordered by their scores in descending order
 2. You can provide your own algorithm sticking to the interfaces
-3. Currently only Relative-Decay-Rate algorithms are supported where scores of the searchable items only increases as the time passes. Ranking algorithm is responsible for providing how much the score will be implemented at any given time. This mean precision overflows will HAPPEN eventually!
+3. Currently only Relative-Decay-Rate algorithms are supported where scores of the searchable items only increases as the time passes. Ranking algorithm is responsible for providing how much the score will be increased at any given time. This mean precision overflows will HAPPEN eventually!
 
 
 ### `CurrentlyPopularRanking`
@@ -14,7 +14,7 @@
 **Note:**
 Algorithm is from: http://qwerjk.com/posts/surfacing-interesting-content/
 
-**How it works:** It everytime increments the score of item by a certain value depending on the half life and anchor epoch. If half life time is 24 hours, it means 1 interaction now will have the same score as 2 interactions happened 24 hours ago. Hence the name 'half life'. After a while all scores will accumulate and redis sorted set scores limits will be exceeded. Sorted set can represent scores upto a certain limit of double values. The shorter half life is the shorter it takes to reach the limit. Then you have migrate all the keys as it is explained in the link. Pick 24 hours and you might not need to migrate for years. Pick 10 minutes and you will reach the point in couple days. 
+**How it works:** It everytime increments the score of item by a certain value depending on the half life and anchor epoch. If half life time is 24 hours, it means 1 interaction now will have the same score as 2 interactions happened 24 hours ago. Hence the name 'half life'. After a while all scores will accumulate and redis sorted set score limits will be exceeded. Sorted set can represent scores upto a certain limit of double values. The shorter half life is the shorter it takes to reach the limit. Then you have migrate all the keys as it is explained in the link. Pick 24 hours and you might not need to migrate for years. Pick 10 minutes and you will reach the point in couple days. 
 
 So, pick your `PopularRankingConstEPOCH` as so that inital score will be very small
 
@@ -22,7 +22,7 @@ So, pick your `PopularRankingConstEPOCH` as so that inital score will be very sm
 
 This will initally give you double.MinValue (approx). Where `CONST_UNIX_TIME_BEFORE_DEPLOYMENT` is the epoch that needs to be hard coded before running/deploying. It will be the anchor
 
-This algorithm will aproximatly will run for `(1074 + 1023) * Half_Life_inHours` hours before needing a migration.
+This algorithm will aproximatly run for `(1074 + 1023) * Half_Life_inHours` hours before needing a migration.
 
 Be aware of when you need to migrate.
 
