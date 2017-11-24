@@ -50,7 +50,7 @@ namespace StackExchange.Redis.WordSearch
         public string SearchableItemsSuffix => "SearchableItems";
         public string SearchableItemsDataSuffix => "SearchableItemsData";
         public string SearchableSuffix => "S";
-        public string SearchableItemsRankingSuffix => "SearchableItemsDataRanking";
+        public string SearchableItemsRankingSuffix => "SearchableItemsRanking";
     }
 
     internal class RedisKeyComposer

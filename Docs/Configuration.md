@@ -17,7 +17,7 @@ Currently default values:
         public string SearchableItemsSuffix => "SearchableItems";
         public string SearchableItemsDataSuffix => "SearchableItemsData";
         public string SearchableSuffix => "S";
-        public string SearchableItemsRankingSuffix => "SearchableItemsDataRanking";
+        public string SearchableItemsRankingSuffix => "SearchableItemsRanking";
     }
 ```
 ## Example Cases
