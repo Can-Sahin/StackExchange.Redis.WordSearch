@@ -32,11 +32,11 @@ For basic AutoCompletion:
 ```
 Ranking Popular Searches:
 ```csharp
-// IDatabase database = ConnectionMultiplexer.GetDatabase();
+//  IDatabase database = ConnectionMultiplexer.GetDatabase();
     RedisWordSearchConfiguration config = RedisWordSearchConfiguration.defaultConfig;
     config.RankingProvider = new CurrentlyPopularRanking(ANCHOR_EPOCH, 24); //24 hours half life
 
-    IRedisWordSearch redisSearch = new RedisWordSearch(Database, config);
+    IRedisWordSearch redisSearch = new RedisWordSearch(database, config);
     redisSearch.Add("IdOfWatson", "EmmaWatson");
     redisSearch.Add("IdOfStone", "EmmaStone");
 
@@ -44,7 +44,7 @@ Ranking Popular Searches:
     redisSearch.BoostInRanking("IdOfStone");
     redisSearch.BoostInRanking("IdOfWatson");
     redisSearch.BoostInRanking("IdOfWatson");
-    List<string> results = redisSearch.Search("Emma");
+    List<string> results = redisSearch.Search("Emma").AsStringList();
     // ["EmmaWatson", "EmmaStone"] EmmaWatson is ordered first because she is twice as popular
 
     var words = redisSearch.TopRankedSearches().AsStringList();
@@ -59,10 +59,10 @@ Serialized Data:
     config.Serializer = new MyJsonSerializer();
 
     IRedisWordSearch wordSearch = new RedisWordSearch(database,config);
-    wordSearch.Add("IdOfWatson", "EmmaWatson", new PartnerOfEmma("HarryPotter"));
-    wordSearch.Add("IdOfStone", "EmmaStone", new PartnerOfEmma("PeterParker"));
+    wordSearch.Add("IdOfWatson", "EmmaWatson", new PartnerForEmma("HarryPotter"));
+    wordSearch.Add("IdOfStone", "EmmaStone", new PartnerForEmma("PeterParker"));
 
-    List<PartnerOfEmma> results = wordSearch.Search<PartnerOfEmma>("Emma").AsStringList();
+    List<PartnerOfEmma> results = wordSearch.Search<PartnerOfEmma>("Emma");
 ```
 
 Use `RedisWordSearchConfiguration` to:
@@ -70,7 +70,7 @@ Use `RedisWordSearchConfiguration` to:
 - Limit min/max search length
 - Put Redis Key Prefix
 - Enable Case Insensivity
-- Specify searching method (autocomplete sequentially or search mixed ("mma" for searching "EmmaWatson")
+- Specify searching method (autocomplete sequentially or autocomplete fuzzy search("mma" for searching "EmmaWatson")
 
 **For details:  [docs]**
 
